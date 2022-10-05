@@ -1,0 +1,27 @@
+.register {
+  &-layout {
+    margin-top: calc(100vh * 0.1);
+    .register-form {
+      margin: auto;
+      padding: 20px;
+      width: calc(100vw * 0.3);
+      background-color: #087c7c6e;
+      border-radius: 20px;
+      font-family: "Courier New", Courier, monospace;
+      &-btn {
+        width: 70%;
+        border-radius: 20px;
+        background-color: rgb(52, 219, 113);
+      }
+      .ant-input,
+      .ant-input-password {
+        border-radius: 20px;
+      }
+    }
+    p {
+      font-size: 3vh;
+      font-family: "Courier New", Courier, monospace;
+      font-weight: 600;
+    }
+  }
+}
