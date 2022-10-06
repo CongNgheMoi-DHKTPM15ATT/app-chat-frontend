@@ -9,7 +9,6 @@ import {
 } from "@ant-design/icons";
 
 function Register() {
-  const navigate = useNavigate();
   return (
     <div className="sign-up">
       <div className="sign-up-layout">

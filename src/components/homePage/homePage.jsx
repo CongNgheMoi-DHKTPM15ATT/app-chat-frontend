@@ -11,23 +11,23 @@ function HomePage() {
   const [_minutes, _setMinutes] = useState();
   const [_seconds, _setSeconds] = useState();
 
-  useEffect(() => {
-    setInterval(function () {
-      let now = new Date().getTime();
-      let distance = _countDown - now;
-      let days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      let hours = Math.floor(
-        (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-      );
-      let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+  // useEffect(() => {
+  //   setInterval(function () {
+  //     let now = new Date().getTime();
+  //     let distance = _countDown - now;
+  //     let days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  //     let hours = Math.floor(
+  //       (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+  //     );
+  //     let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  //     let seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-      _setDays(days);
-      _setHours(hours);
-      _setMinutes(minutes);
-      _setSeconds(seconds);
-    });
-  });
+  //     _setDays(days);
+  //     _setHours(hours);
+  //     _setMinutes(minutes);
+  //     _setSeconds(seconds);
+  //   });
+  // });
 
   return (
     <div className="homepage">
