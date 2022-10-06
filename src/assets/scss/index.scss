@@ -1,8 +1,11 @@
 @import "../../App.css";
 @import "../../index.css";
+@import "./variables.scss";
+@import "./system.scss";
 
 //---- antd ----//
 @import "antd/dist/antd.css";
+@import "./antdSystem.scss";
 
 //---- Home Page ----//
 @import "../../components/homePage/homepage.scss";
@@ -12,3 +15,6 @@
 
 //---- Register ----//
 @import "../../components/register/register.scss";
+
+//---- Side bar ----//
+@import "../../components/sideBar/sideBar.scss";

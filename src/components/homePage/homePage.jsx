@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "antd";
 import { Link } from "react-router-dom";
+import SideBar from "../sideBar/sidebar";
 
 function HomePage() {
   let _countDown = new Date("Oct 10, 2022 12:30:00").getTime();
@@ -30,7 +31,8 @@ function HomePage() {
 
   return (
     <div className="homepage">
-      <h1>Báo cáo lần 1 App Chat Project</h1>
+      <SideBar />
+      {/* <h1>Báo cáo lần 1 App Chat Project</h1>
       <h2>
         <h4>
           {_days} ngày {_hours} giờ {_minutes} phút {_seconds} giây
@@ -43,7 +45,7 @@ function HomePage() {
 
       <Button className="btn btn-register">
         <Link to="/register">Đăng ký </Link>
-      </Button>
+      </Button> */}
     </div>
   );
 }

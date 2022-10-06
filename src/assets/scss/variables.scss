@@ -1,0 +1,45 @@
+//---------Color---------//
+$color-primary: #1fb1b1;
+$color-primary-hover-1: #2ed2d2;
+$color-primary-hover-2: #e5ffff;
+$light-color: white;
+$dark-color: black;
+$place-holder-1: #acacac;
+$place-holder-2: #eeeeee;
+$color-border: #d9d9d9;
+$color-default: #9f9f9f;
+$color-disable: #f5f5f5;
+$color-danger: #ff4d4f;
+$color-danger-hover: rgb(255, 77, 79, 0.8);
+$color-danger-hover-2: rgb(255, 227, 227);
+$dust-red-8: #f37370;
+
+$height-navbar: 70px;
+
+:root {
+    //------ font-size -----//
+    --heading-1: 96px;
+    --heading-2: 60px;
+    --heading-3: 48px;
+    --heading-4: 34px;
+    --heading-5: 24px;
+    --heading-6: 20px;
+    --subtitle-1: 16px;
+    --subtitle-2: 14px;
+    --body-1: 16px;
+    --body-2: 14px;
+    --caption: 12px;
+    --overline: 10px;
+
+    //------- light color ---------//
+    --light-default: $light-color;
+    --light-background: #fff;
+    --light-background-1: #f2f2f2;
+    --light-background-2: #caf0f0;
+    --light-hover: rgb(201, 201, 201, 1);
+    --color-calendar-graph-day: #eeeeee;
+    --color-calendar-graph-day-1: #d6e685;
+    --color-calendar-graph-day-2: #8cc665;
+    --color-calendar-graph-day-3: #44a340;
+    --color-calendar-graph-day-4: #1e6823;
+}

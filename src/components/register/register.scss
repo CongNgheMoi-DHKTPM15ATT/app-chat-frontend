@@ -1,27 +1,75 @@
-.register {
-  &-layout {
-    margin-top: calc(100vh * 0.1);
-    .register-form {
-      margin: auto;
-      padding: 20px;
-      width: calc(100vw * 0.3);
-      background-color: #087c7c6e;
-      border-radius: 20px;
-      font-family: "Courier New", Courier, monospace;
-      &-btn {
-        width: 70%;
-        border-radius: 20px;
-        background-color: rgb(52, 219, 113);
-      }
-      .ant-input,
-      .ant-input-password {
-        border-radius: 20px;
+.sign-up {
+  // background-image: linear-gradient(
+  //   to right,
+  //   rgb(152, 238, 241),
+  //   rgb(9, 141, 242)
+  // );
+  overflow: hidden auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  .sign-up-layout {
+    padding: 50px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 10%;
+    &__left {
+      width: 40%;
+      &__background {
+        img {
+          max-width: 600px;
+          max-height: 600px;
+          border-radius: 20px;
+        }
       }
     }
-    p {
-      font-size: 3vh;
-      font-family: "Courier New", Courier, monospace;
-      font-weight: 600;
+    &__right {
+      .ant-form-item:nth-child(1) {
+        .ant-form-item-control-input-content {
+          display: flex;
+          flex-direction: column;
+          h4 {
+            text-align: center;
+            font-family: "Courier New", Courier, monospace;
+            margin-bottom: 0 !important;
+          }
+        }
+      }
+      .ant-form-item:nth-last-child(4) {
+        .ant-input-affix-wrapper:nth-child(1) {
+          margin-right: 10px;
+        }
+        .ant-input-affix-wrapper:nth-child(2) {
+          margin-left: 10px;
+        }
+      }
+      .ant-form-item:nth-last-child(3) span {
+        font-size: var(--small-size);
+      }
+      .ant-form-item:nth-last-child(1) {
+        margin-top: 10px;
+        .ant-form-item-control-input-content {
+          flex-direction: column;
+          .register-form-btn {
+            width: 70%;
+            height: 40px;
+            font-size: var(--extra-small-size);
+            background-color: $color-primary;
+            color: $light-color;
+            border-radius: 5px;
+          }
+          .register-form-register {
+            margin: 5px;
+            font-size: var(--extra-small-size);
+            a,
+            span {
+              cursor: pointer;
+              color: $color-primary;
+            }
+          }
+        }
+      }
     }
   }
 }
