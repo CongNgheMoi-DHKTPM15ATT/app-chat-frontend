@@ -5,7 +5,7 @@ import {
   LockOutlined,
   MailOutlined,
   UserOutlined,
-  CodeOutlined,
+  PhoneOutlined,
 } from "@ant-design/icons";
 import userAPI from "../../api/userAPI";
 
@@ -17,6 +17,8 @@ function Register() {
       const params = {
         user_name: value.username,
         password: value.password,
+        phone: value.phone,
+        email: value.email,
       };
       const response = await userAPI.RegisterByUserName(params);
       console.log(response);
@@ -82,7 +84,7 @@ function Register() {
               />
             </Form.Item>
           </Form.Item>
-          {/* <Form.Item>
+          <Form.Item>
             <Form.Item
               name="email"
               rules={[
@@ -99,7 +101,25 @@ function Register() {
                 type="text"
               />
             </Form.Item>
-          </Form.Item> */}
+          </Form.Item>
+          <Form.Item>
+            <Form.Item
+              name="phone"
+              rules={[
+                {
+                  required: true,
+                  message: "Số điện thoại không được để trống",
+                },
+              ]}
+              noStyle
+            >
+              <Input
+                prefix={<PhoneOutlined className="site-form-item-icon" />}
+                placeholder="Số điện thoại"
+                type="text"
+              />
+            </Form.Item>
+          </Form.Item>
           {/* <Form.Item>
             <Form.Item name="firstname" noStyle>
               <Input

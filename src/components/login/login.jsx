@@ -5,7 +5,7 @@ import userAPI from "../../api/userAPI";
 import { useEffect } from "react";
 import axios from "axios";
 
-function Login() {
+function Login({ socket }) {
   const navigate = useNavigate();
 
   const handleLogin = async (value) => {
