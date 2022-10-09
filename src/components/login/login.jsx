@@ -11,7 +11,7 @@ function Login() {
   const handleLogin = async (value) => {
     try {
       const params = {
-        username: value.username,
+        user_name: value.username,
         password: value.password,
       };
       const response = await userAPI.loginByUserName(params);
