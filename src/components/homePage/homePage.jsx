@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Button } from "antd";
 import { Link } from "react-router-dom";
 import SideBar from "../sideBar/sidebar";
+import Chat from "../chat/chat";
 
 function HomePage() {
   let _countDown = new Date("Oct 10, 2022 12:30:00").getTime();
@@ -32,6 +33,7 @@ function HomePage() {
   return (
     <div className="homepage">
       <SideBar />
+      <Chat/>
       {/* <h1>Báo cáo lần 1 App Chat Project</h1>
       <h2>
         <h4>

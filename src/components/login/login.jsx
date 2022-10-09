@@ -1,12 +1,25 @@
 import { Form, Input, Checkbox, Button } from "antd";
 import { UserOutlined, LockOutlined, GoogleOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
+import userAPI from "../../api/userAPI";
+import { useEffect } from "react";
+import axios from "axios";
 
 function Login() {
   const navigate = useNavigate();
 
   const handleLogin = async (value) => {
-    navigate("/");
+    try {
+      const params = {
+        username: value.username,
+        password: value.password,
+      };
+      const response = await userAPI.loginByUserName(params);
+      console.log(response);
+      navigate("/home");
+    } catch (error) {
+      console.log("Failed to call API login " + error);
+    }
   };
 
   return (

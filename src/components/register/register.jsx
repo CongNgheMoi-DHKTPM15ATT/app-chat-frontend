@@ -7,8 +7,25 @@ import {
   UserOutlined,
   CodeOutlined,
 } from "@ant-design/icons";
+import userAPI from "../../api/userAPI";
 
 function Register() {
+  const navigate = useNavigate();
+
+  const handleRegister = async (value) => {
+    try {
+      const params = {
+        username: value.username,
+        password: value.password,
+      };
+      const response = await userAPI.RegisterByUserName(params);
+      console.log(response);
+      navigate("/login");
+    } catch {
+      console.log("Failed to call API Register");
+    }
+  };
+
   return (
     <div className="sign-up">
       <div className="sign-up-layout">
@@ -23,7 +40,7 @@ function Register() {
         <Form
           name="register-form"
           className="sign-up-layout__right antd-form"
-          // onFinish={(value) => handleRegister(value)}
+          onFinish={(value) => handleRegister(value)}
         >
           <Form.Item>
             <h4>Đăng ký</h4>
@@ -65,7 +82,7 @@ function Register() {
               />
             </Form.Item>
           </Form.Item>
-          <Form.Item>
+          {/* <Form.Item>
             <Form.Item
               name="email"
               rules={[
@@ -82,23 +99,23 @@ function Register() {
                 type="text"
               />
             </Form.Item>
-          </Form.Item>
-          <Form.Item>
+          </Form.Item> */}
+          {/* <Form.Item>
             <Form.Item name="firstname" noStyle>
               <Input
                 prefix={<UserOutlined className="site-form-item-icon" />}
                 placeholder="Họ và tên đệm"
                 type="text"
               />
-            </Form.Item>
-            <Form.Item name="lastname" noStyle>
+            </Form.Item> */}
+          {/* <Form.Item name="lastname" noStyle>
               <Input
                 prefix={<UserOutlined className="site-form-item-icon" />}
                 placeholder="Tên của bạn"
                 type="text"
               />
-            </Form.Item>
-          </Form.Item>
+            </Form.Item> */}
+          {/* </Form.Item> */}
           <Form.Item>
             <Form.Item
               name="password"

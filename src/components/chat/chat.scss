@@ -1,0 +1,39 @@
+.chat{
+    width: 73vw;
+    height: 100vh;
+    background-color: aqua;
+    &-header{
+        width: auto;
+        height: 10vh;
+        display: flex;
+        flex-direction:row;
+        background-color: aliceblue;
+        &-info{
+            height: 100%;
+            width: 50%;
+            background-color: bisque;
+        }
+        &-toolbar{
+            height: 100%;
+            width: 50%;
+            background-color: rgb(93, 59, 17);
+        }
+    }
+    &-center{
+        width: auto;
+        height: 77vh;
+        background-color: rgb(35, 48, 60);
+        display: flex;
+        justify-content: center;
+        &-message{
+            width: 98%;
+            height: 100%;
+            background-color: white;
+        }
+    }
+    &-footer{
+        width: auto;
+        height: 13vh;
+        background-color: rgb(53, 208, 120);
+    }
+}
