@@ -3,15 +3,11 @@ import { Routes, Route, Navigate, Link } from "react-router-dom";
 import HomePage from "./components/homePage/homePage";
 import Loading from "./basicComponent/loading";
 import { Button } from "antd";
-import { io } from "socket.io-client";
 
 const Register = lazy(() => import("./components/register/register"));
 const Login = lazy(() => import("./components/login/login"));
-const socket = io("https://halo-chat.herokuapp.com");
+
 function App() {
-  useEffect(() => {
-    socket.emit("addUser", { senderId: "634255ff21fbe65180fa2f07" });
-  }, []);
   return (
     <div className="App">
       <Suspense fallback={<Loading />}>
@@ -19,7 +15,7 @@ function App() {
           <Route path="/" element={<Navigate replace to="/home" />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/home" element={<HomePage socket={socket} />} />
+          <Route path="/home" element={<HomePage />} />
           <Route
             path="*"
             element={

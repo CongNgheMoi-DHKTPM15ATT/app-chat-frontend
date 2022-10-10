@@ -1,78 +1,111 @@
-.chat{
-    width: 73vw;
-    height: 100vh;
-    background-color: aqua;
-    &-header{
-        width: auto;
-        height: 10vh;
-        display: flex;
-        flex-direction:row;
-        background-color: aliceblue;
-        &-info{
-            height: 100%;
-            width: 50%;
-            background-color: bisque;
-        }
-        &-toolbar{
-            height: 100%;
-            width: 50%;
-            background-color: rgb(93, 59, 17);
-        }
+.chat {
+  width: 73vw;
+  height: 100vh;
+  background-color: aqua;
+  &-header {
+    width: auto;
+    height: 10vh;
+    display: flex;
+    flex-direction: row;
+    background-color: aliceblue;
+    &-info {
+      height: 100%;
+      width: 50%;
+      background-color: bisque;
     }
-    &-center{
-        width: auto;
-        height: 72vh;
-        background-color: #e6e6e6;
-        display: flex;
-        justify-content: center;
-        &-message{
-            width: 98%;
-            height: 100%;
-            background-color: #e6e6e6;
-        }
+    &-toolbar {
+      height: 100%;
+      width: 50%;
+      background-color: rgb(93, 59, 17);
     }
-    &-footer{
-        width: auto;
-        height: 18vh;
-        background-color: rgb(53, 208, 120);
-        display: flex;
-        flex-direction: column;
-        &-toolbar{
-            width: 100%;
-            height: 40%;
-            background-color: white;
-            border-bottom: 0.5px solid gray;
+  }
+  &-center {
+    width: auto;
+    height: 72vh;
+    background-color: #eeeeee;
+    display: flex;
+    justify-content: center;
+    &-message {
+      width: 94%;
+      height: 100%;
+      // background-color: #ad1111;
+      .chat-item {
+        width: 100%;
+        // background-color: aqua;
+        margin: 2px;
+        display: inline-block;
+        &-content {
+          max-width: 65%;
+          width: auto;
+          // background-color: #483e3e;
+          border-radius: 20px;
+          display: inline-block;
+          padding: 0 10px;
+          font-size: 1.5em;
         }
-        &-input{
-            width: 100%;
-            height: 60%;
-            background-color: white;
-            display: flex;
-            flex-direction: row;
-            &-form{
-                height: 100%;
-                width: 80%;
-                padding: 0 5px;
-                .text-area{
-                    width: 100%;
-                    height: 100%;
-                    resize: none;
-                    border: none;
-                }
-            }
-            &-action{
-                height: 100%;
-                width: 20%;
-                display: flex;
-                flex-direction: row;
-                justify-content: right;
-                margin:0 10px;
-                .action-icon{
-                    width: 5em;
-                    margin:2px;
-                    border: none !important;
-                }
-            }
+        &-content-left {
+          float: left;
+          clear: both;
+          background-color: #e4e6eb;
+          text-align: left;
         }
+        &-content-right {
+          float: right;
+          background-color: #539de2;
+          text-align: right;
+        }
+        &-sender {
+          float: left;
+          margin: 0 !important;
+          font-size: small;
+          font-weight: 300;
+          padding-left: 10px;
+        }
+      }
     }
+  }
+  &-footer {
+    width: auto;
+    height: 18vh;
+    background-color: rgb(53, 208, 120);
+    display: flex;
+    flex-direction: column;
+    &-toolbar {
+      width: 100%;
+      height: 40%;
+      background-color: white;
+      border-bottom: 0.5px solid gray;
+    }
+    &-input {
+      width: 100%;
+      height: 60%;
+      background-color: white;
+      display: flex;
+      flex-direction: row;
+      &-form {
+        height: 100%;
+        width: 80%;
+        padding: 0 5px;
+        .text-area {
+          width: 100%;
+          height: 100%;
+          resize: none;
+          border: none;
+        }
+      }
+      &-action {
+        height: 100%;
+        width: 20%;
+        display: flex;
+        flex-direction: row;
+        justify-content: right;
+        margin: 0 10px;
+        .action-icon {
+          width: 5em;
+          margin: 2px;
+          border: none !important;
+        }
+      }
+    }
+  }
 }

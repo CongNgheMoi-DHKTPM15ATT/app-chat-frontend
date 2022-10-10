@@ -4,10 +4,12 @@ import { Link, useNavigate } from "react-router-dom";
 import userAPI from "../../api/userAPI";
 import { useEffect } from "react";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { setAccount } from "../../slide/userSlide";
 
 function Login({ socket }) {
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   const handleLogin = async (value) => {
     try {
       const params = {
@@ -16,6 +18,10 @@ function Login({ socket }) {
       };
       const response = await userAPI.loginByUserName(params);
       console.log(response);
+      const action = setAccount(response.data);
+
+      dispatch(action);
+
       navigate("/home");
     } catch (error) {
       console.log("Failed to call API login " + error);

@@ -3,8 +3,15 @@ import { Button } from "antd";
 import { Link } from "react-router-dom";
 import SideBar from "../sideBar/sidebar";
 import Chat from "../chat/chat";
+import { io } from "socket.io-client";
+import { useSelector } from "react-redux";
 
-function HomePage({ socket }) {
+const socket = io("http://localhost:8080");
+function HomePage() {
+  const account = useSelector((state) => state.account.account);
+  useEffect(() => {
+    socket.emit("addUser", { senderId: account._id });
+  }, []);
   return (
     <div className="homepage">
       <SideBar />
