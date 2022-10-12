@@ -6,30 +6,42 @@ import { useDispatch, useSelector } from "react-redux";
 import { addMessage } from "../../slide/messageSlide";
 
 function Chat({ socket }) {
-  const [_messageValue, _setMessageValue] = useState("");
-  const message = useSelector((state) => state.message);
-  const [_listMessage, _setListMessage] = useState();
-  // let _listMessage = [];
+  const _ListMess = [];
   const account = useSelector((state) => state.account.account);
-  const dispatch = useDispatch();
   const { _id } = account;
+  console.log(_id);
+  const [_messageValue, _setMessageValue] = useState("");
+  const [_listMessage, _setListMessage] = useState([
+    {
+      content: "Chào anh",
+      senderId: _id,
+      senderName: "dmd",
+    },
+    {
+      content: "ukm, chào e",
+      senderId: "63425fe9468cba4024ddb894",
+      senderName: "Nguyễn Hải Nam",
+    },
+    {
+      content: ":))))))))))))))))))))))",
+      senderId: _id,
+      senderName: "dmd",
+    },
+  ]);
 
   useEffect(() => {
     socket.on("getMessage", (data) => {
-      // ListMessage.push({
+      // const mess = {
       //   content: data.text,
       //   content_type: "text",
-      //   sender: data.senderId,
+      //   senderId: _id,
       //   deleted: false,
-      //   createAt: new Date(Date.now()),
-      // });
+      //   // createAt: new Date(Date.now()),
+      // };
+      // _setListMessage((_listMessage) => [..._listMessage, mess]);
       console.log(data.text);
     });
   }, [socket]);
-
-  useEffect(() => {
-    rederListMess();
-  }, [message]);
 
   function ChatItem(prop) {
     return (
@@ -52,34 +64,23 @@ function Chat({ socket }) {
     );
   }
 
-  //   useEffect(() => {
-  //     _listMessage.map((mess, index) => {
-  //       console.log(index + " : " + mess.content);
-  //       //   _rederListMess.push(
-  //       //     <ChatItem
-  //       //       key={index}
-  //       //       content={mess.content}
-  //       //       senderId={mess.sender}
-  //       //       senderName={mess.sender}
-  //       //     />
-  //       //   );
-  //     });
-  //   }, [_listMessage]);
-
   const rederListMess = () => {
-    const _ListMess = [];
-    message.forEach((mess, index) => {
-      console.log(index + " : " + mess.content);
+    _listMessage.map((mess, index) => {
+      _ListMess.push(
+        <ChatItem
+          key={index}
+          content={mess.content}
+          senderId={mess.senderId}
+          senderName={mess.senderName}
+        />
+      );
     });
-    // _rederListMess.push(
-    //   <ChatItem
-    //     content={mess.content}
-    //     senderId={mess.sender}
-    //     senderName={mess.sender}
-    //   />
-    // );
-    _setListMessage(_ListMess);
+    return _ListMess;
   };
+
+  useEffect(() => {
+    rederListMess();
+  }, [_listMessage]);
 
   const handleOneBlur = () => {
     let _text = document.getElementById("mess-text").innerHTML;
@@ -97,14 +98,11 @@ function Chat({ socket }) {
       const mess = {
         content: _text.innerHTML.trim(),
         content_type: "text",
-        sender: _id,
+        senderId: _id,
         deleted: false,
         // createAt: new Date(Date.now()),
       };
-      // _listMessage.push(_listMessage, mess);
-      // console.log(_listMessage);
-      //   rederListMess(mess);
-      dispatch(addMessage(mess));
+      _setListMessage((_listMessage) => [..._listMessage, mess]);
       // nguyenhainam_01 = 634255ff21fbe65180fa2f07;
       // nguyenhainam_02 = 63425fe9468cba4024ddb894;
       socket.emit("send", {
@@ -122,27 +120,27 @@ function Chat({ socket }) {
         <div className="chat-header-toolbar"></div>
       </div>
       <div className="chat-center">
-        {/* <div className="chat-center-message"> */}
-        {/* {.map((mess, index) => {
+        {/* <div className="chat-center-message">
+          {.map((mess, index) => {
             <ChatItem key={index} content={mess.content}></ChatItem>;
-          })} */}
-        {/* <ChatItem
-            content="hello nhok"
+          })}
+          <ChatItem
+            content="Chào anh"
             senderId="634255ff21fbe65180fa2f07"
             senderName="dmd"
           ></ChatItem>
           <ChatItem
-            content="hello nhok          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaassssssssssssss sssssssssssssssssssssss"
+            content="ukm, chào e"
             senderId="63425fe9468cba4024ddb894"
-            senderName="dmd"
+            senderName="Nguyễn Hải Nam"
           ></ChatItem>
           <ChatItem
-            content="hello nhok"
+            content=":))))))))))))))))))))))"
             senderId="634255ff21fbe65180fa2f07"
             senderName="dmd"
           ></ChatItem>
         </div> */}
-        <div className="chat-center-message">{_listMessage}</div>
+        <div className="chat-center-message">{rederListMess()}</div>
       </div>
       <div className="chat-footer">
         <div className="chat-footer-toolbar"></div>
