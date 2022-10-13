@@ -11,8 +11,7 @@ function Chat({ socket }) {
   const account = useSelector((state) => state.account.account);
   const { _id } = account;
   const [_messageValue, _setMessageValue] = useState("");
-  const [_listMessage, _setListMessage] = useState([
-    {
+  const [_listMessage, _setListMessage] = useState([{
       content: "Chào anh",
       senderId: _id,
       senderName: "dmd",
@@ -45,7 +44,7 @@ function Chat({ socket }) {
   }, [_listMessage]);
 
   useEffect(() => {
-    socket.on("getMessage", (data) => {
+    const addList = (data) => {
       const mess = {
         content: data.text,
         content_type: "text",
@@ -54,26 +53,27 @@ function Chat({ socket }) {
         // createAt: new Date(Date.now()),
       };
       _setListMessage((_listMessage) => [..._listMessage, mess]);
-    });
+    }
+    socket.on("getMessage", addList);
+    return () => socket.off("getMessage", addList);
+  }, [socket]);
 
+  useEffect(() => {
     rederListMess();
-  }, [socket, rederListMess]);
-
-  // useEffect(() => {
-  // }, []);
+  }, [_listMessage]);
 
   const handleOneBlur = () => {
     let _text = document.getElementById("mess-text").innerHTML;
     if (_text.trim() === "") _setMessageValue("");
   };
 
-  const setInputValue = (e) => {
-    _setMessageValue(e.target.value);
-  };
+  // const setInputValue = (e) => {
+  //   _setMessageValue(e.target.value);
+  // };
 
   const handleEmitMessage = () => {
     let _text = document.getElementById("mess-text");
-    _setMessageValue("");
+    //_setMessageValue("");
     if (!(_text === "")) {
       const mess = {
         content: _text.innerHTML.trim(),
@@ -90,6 +90,7 @@ function Chat({ socket }) {
         receiverId: "63425fe9468cba4024ddb894",
         text: _text.innerHTML.trim(),
       });
+
     }
   };
 
@@ -112,10 +113,10 @@ function Chat({ socket }) {
               className="text-area"
               name="text"
               id="mess-text"
-              value={_messageValue}
+              // value={_messageValue}
               onPressEnter={handleEmitMessage}
               onBlur={handleOneBlur}
-              onChange={setInputValue}
+              // onChange={setInputValue}
             ></TextArea>
           </Form.Item>
           <Form.Item className="chat-footer-input-action">
