@@ -1,15 +1,15 @@
 import { Button, Form } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import { SendOutlined } from "@ant-design/icons";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addMessage } from "../../slide/messageSlide";
+import ChatItem from "../chatItem/chatItem";
 
 function Chat({ socket }) {
   const _ListMess = [];
   const account = useSelector((state) => state.account.account);
   const { _id } = account;
-  console.log(_id);
   const [_messageValue, _setMessageValue] = useState("");
   const [_listMessage, _setListMessage] = useState([
     {
@@ -29,42 +29,7 @@ function Chat({ socket }) {
     },
   ]);
 
-  useEffect(() => {
-    socket.on("getMessage", (data) => {
-      // const mess = {
-      //   content: data.text,
-      //   content_type: "text",
-      //   senderId: _id,
-      //   deleted: false,
-      //   // createAt: new Date(Date.now()),
-      // };
-      // _setListMessage((_listMessage) => [..._listMessage, mess]);
-      console.log(data.text);
-    });
-  }, [socket]);
-
-  function ChatItem(prop) {
-    return (
-      <div className="chat-item">
-        {prop.senderId == _id ? (
-          ""
-        ) : (
-          <p className="chat-item-sender">{prop.senderName}</p>
-        )}
-
-        <div
-          className={
-            "chat-item-content chat-item-content-" +
-            (prop.senderId == _id ? "right" : "left")
-          }
-        >
-          {prop.content}
-        </div>
-      </div>
-    );
-  }
-
-  const rederListMess = () => {
+  const rederListMess = useCallback(() => {
     _listMessage.map((mess, index) => {
       _ListMess.push(
         <ChatItem
@@ -72,15 +37,30 @@ function Chat({ socket }) {
           content={mess.content}
           senderId={mess.senderId}
           senderName={mess.senderName}
+          userID={_id}
         />
       );
     });
     return _ListMess;
-  };
+  }, [_listMessage]);
 
   useEffect(() => {
+    socket.on("getMessage", (data) => {
+      const mess = {
+        content: data.text,
+        content_type: "text",
+        senderId: data.senderId,
+        deleted: false,
+        // createAt: new Date(Date.now()),
+      };
+      _setListMessage((_listMessage) => [..._listMessage, mess]);
+    });
+
     rederListMess();
-  }, [_listMessage]);
+  }, [socket, rederListMess]);
+
+  // useEffect(() => {
+  // }, []);
 
   const handleOneBlur = () => {
     let _text = document.getElementById("mess-text").innerHTML;
@@ -120,26 +100,6 @@ function Chat({ socket }) {
         <div className="chat-header-toolbar"></div>
       </div>
       <div className="chat-center">
-        {/* <div className="chat-center-message">
-          {.map((mess, index) => {
-            <ChatItem key={index} content={mess.content}></ChatItem>;
-          })}
-          <ChatItem
-            content="Chào anh"
-            senderId="634255ff21fbe65180fa2f07"
-            senderName="dmd"
-          ></ChatItem>
-          <ChatItem
-            content="ukm, chào e"
-            senderId="63425fe9468cba4024ddb894"
-            senderName="Nguyễn Hải Nam"
-          ></ChatItem>
-          <ChatItem
-            content=":))))))))))))))))))))))"
-            senderId="634255ff21fbe65180fa2f07"
-            senderName="dmd"
-          ></ChatItem>
-        </div> */}
         <div className="chat-center-message">{rederListMess()}</div>
       </div>
       <div className="chat-footer">

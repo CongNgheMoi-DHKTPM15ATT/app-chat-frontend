@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Menu, Button, Form, Input } from "antd";
+import { Menu, Button, Form, Input, Row, Col } from "antd";
 import { Link } from "react-router-dom";
 import {
   MessageTwoTone,
@@ -121,36 +121,42 @@ function SideBar() {
   }
 
   return (
-    <div className="sidebar">
-      <Menu
-        defaultSelectedKeys="btn-message"
-        mode="inline"
-        inlineCollapsed={collapsed}
-        items={items}
-        className="sidebar-menu"
-        onClick={(e) => setChooseItem(e.key)}
-      />
-      <div className="sidebar-content">
-        <div className="sidebar-content-header">
-          <Form className="form-search">
-            <Input
-              prefix={<SearchOutlined />}
-              placeholder="Tìm kiếm "
-              type="text"
-              className="txt-search"
-            />
-            {/* <Button htmlType="submit" className="btn-search">
+    // <div >
+    <Row className="sidebar">
+      <Col span={6}>
+        <Menu
+          defaultSelectedKeys="btn-message"
+          mode="inline"
+          inlineCollapsed={collapsed}
+          items={items}
+          className="sidebar-menu"
+          onClick={(e) => setChooseItem(e.key)}
+        />
+      </Col>
+      <Col span={18}>
+        <div className="sidebar-content">
+          <div className="sidebar-content-header">
+            <Form className="form-search">
+              <Input
+                prefix={<SearchOutlined />}
+                placeholder="Tìm kiếm "
+                type="text"
+                className="txt-search"
+              />
+              {/* <Button htmlType="submit" className="btn-search">
               <SearchOutlined />
             </Button> */}
-          </Form>
+            </Form>
+          </div>
+          {chooseItem === "btn-message"
+            ? renderListMessage()
+            : chooseItem === "btn-friend"
+            ? renderTabFriend()
+            : ""}
         </div>
-        {chooseItem === "btn-message"
-          ? renderListMessage()
-          : chooseItem === "btn-friend"
-          ? renderTabFriend()
-          : ""}
-      </div>
-    </div>
+      </Col>
+    </Row>
+    // </div>
   );
 }
 

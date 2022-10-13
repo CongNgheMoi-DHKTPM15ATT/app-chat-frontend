@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import { Button } from "antd";
+import { Button, Col, Row } from "antd";
 import { Link } from "react-router-dom";
 import SideBar from "../sideBar/sidebar";
 import Chat from "../chat/chat";
 import { io } from "socket.io-client";
 import { useSelector } from "react-redux";
 
-const socket = io(process.env.SOCKET_URL);
+const socket = io(process.env.REACT_APP_SOCKET_URL);
+
 function HomePage() {
   const account = useSelector((state) => state.account.account);
   useEffect(() => {
@@ -14,8 +15,14 @@ function HomePage() {
   }, []);
   return (
     <div className="homepage">
-      <SideBar />
-      <Chat socket={socket} />
+      <Row>
+        <Col span={6}>
+          <SideBar />
+        </Col>
+        <Col span={18}>
+          <Chat socket={socket} />
+        </Col>
+      </Row>
     </div>
   );
 }
