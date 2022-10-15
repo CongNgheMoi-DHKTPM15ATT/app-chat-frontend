@@ -1,11 +1,8 @@
-import React, { useState } from "react";
-import { Menu, Button, Form, Input, Row, Col } from "antd";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Menu, Form, Input, Row, Col } from "antd";
 import {
   MessageTwoTone,
   ContactsTwoTone,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
   UnorderedListOutlined,
   SettingTwoTone,
   NotificationTwoTone,
@@ -13,53 +10,67 @@ import {
   UsergroupDeleteOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
+import { useSelector } from "react-redux";
+import ConversationAPI from "../../api/conversationAPI";
+import { createConversations } from "../../slide/conversationSlide";
+import { useDispatch } from "react-redux";
+import { setChatAccount } from "../../slide/chatSlide";
 
 function SideBar() {
+  const account = useSelector((state) => state.account.account);
+  const chat = useSelector((state) => state.chat.account);
+  const conversations = useSelector((state) => state.conversation.conver);
   const [chooseItem, setChooseItem] = useState("btn-message");
   const [chooseMessage, setChooseMessage] = useState(0);
-  const [collapsed, setCollapsed] = useState(true);
-  const [listMessage, setListMessage] = useState([
-    {
-      name: "Nguyễn Hải Nam",
-      content: "Anh thư cute hihi hhhhhhhhhhhhhhhhhhhhhhhhh",
-      lastMess: "1 giờ",
-      avatar: "../../assets/images/google-icon.jpg",
-    },
-    {
-      name: "Nguyễn Nhật Quang",
-      content: "Anh thư cute hihi hhhhhhhhhhhhhhhhhhhhhhhhh",
-      lastMess: "2 giờ",
-      avatar: "../../assets/images/google-icon.jpg",
-    },
-    {
-      name: "Antii",
-      content: "Anh thư cute hihi hhhhhhhhhhhhhhhhhhhhhhhhh",
-      lastMess: "2 giờ",
-      avatar: "../../assets/images/google-icon.jpg",
-    },
-    {
-      name: "Thanh Ngân",
-      content: "Anh thư cute hihi hhhhhhhhhhhhhhhhhhhhhhhhh",
-      lastMess: "4 giờ",
-      avatar: "../../assets/images/google-icon.jpg",
-    },
-  ]);
+  const dispatch = useDispatch();
+
+  const handleGetConversations = async (id) => {
+    try {
+      const params = {
+        user_id: id,
+      };
+      const response = await ConversationAPI.getConversationsById(params);
+      const action = createConversations(response.conversations);
+      dispatch(action);
+    } catch (error) {
+      console.log("Failed to call API get Conversations By Id " + error);
+    }
+  };
+
+  useEffect(() => {
+    handleGetConversations(account._id);
+    console.log("conver chat : " + chat.id);
+  }, []);
+
+  function changeCreate(date) {
+    const time = Math.abs(new Date() - new Date(date));
+    if (Math.floor(time / 1000) < 60) return "vài giây trước";
+    else if (Math.floor(time / 1000 / 60) < 60) {
+      return Math.floor(time / 1000 / 60) + " phút";
+    } else if (Math.floor(time / 1000 / 60 / 60) < 24) {
+      return Math.floor(time / 1000 / 60 / 60) + " giờ";
+    } else return Math.floor(time / 1000 / 60 / 60 / 24) + " ngày";
+  }
 
   function renderListMessage() {
-    return (
-      <div className="sidebar-content-center">
-        {listMessage.map((user, index) => (
+    var list_conver = [];
+    conversations.map((conver, index) => {
+      if (!(conver.last_message == undefined)) {
+        list_conver.push(
           <MessageItem
             key={index}
             id={index}
-            name={user.name}
-            avatar={user.avatar}
-            content={user.content}
-            lastMess={user.lastMess}
+            conver_id={conver._id}
+            // name={user.name}
+            name={conver._id}
+            avatar="../../assets/images/google-icon.jpg"
+            content={conver.last_message.content}
+            lastMess={changeCreate(conver.last_message.createdAt)}
           ></MessageItem>
-        ))}
-      </div>
-    );
+        );
+      }
+    });
+    return list_conver;
   }
 
   function renderTabFriend() {
@@ -86,21 +97,39 @@ function SideBar() {
   }
 
   const items = [
-    { label: "Tin nhắn", key: "btn-message", icon: <MessageTwoTone /> }, // remember to pass the key prop
+    {
+      label: "Nguyễn Hải Nam",
+      key: `${account.user_name}`,
+      icon: (
+        <img
+          src={require("../../assets/images/google-icon.jpg")}
+          alt="avatar"
+        />
+      ),
+    },
+    { label: "Tin nhắn", key: "btn-message", icon: <MessageTwoTone /> },
     {
       label: "Bạn bè",
       key: "btn-friend",
       icon: <ContactsTwoTone />,
     },
-    { label: "Thông báo", key: "btn-notifi", icon: <NotificationTwoTone /> }, // which is required
-    { label: "Cài đặt", key: "btn-setting", icon: <SettingTwoTone /> }, // which is required
+    { label: "Thông báo", key: "btn-notifi", icon: <NotificationTwoTone /> },
+    { label: "Cài đặt", key: "btn-setting", icon: <SettingTwoTone /> },
   ];
 
   function MessageItem(props) {
     return (
       <div
         id={props.id}
-        onClick={() => setChooseMessage(props.id)}
+        onClick={() => {
+          setChooseMessage(props.id);
+          const action = setChatAccount({
+            id: props.conver_id,
+            user_name: "hihi",
+          });
+          dispatch(action);
+          console.log(action);
+        }}
         className={"messageItem " + (chooseMessage == props.id ? "active" : "")}
       >
         <div className="messageItem-left">
@@ -127,7 +156,7 @@ function SideBar() {
         <Menu
           defaultSelectedKeys="btn-message"
           mode="inline"
-          inlineCollapsed={collapsed}
+          inlineCollapsed={true}
           items={items}
           className="sidebar-menu"
           onClick={(e) => setChooseItem(e.key)}
@@ -148,11 +177,13 @@ function SideBar() {
             </Button> */}
             </Form>
           </div>
-          {chooseItem === "btn-message"
-            ? renderListMessage()
-            : chooseItem === "btn-friend"
-            ? renderTabFriend()
-            : ""}
+          {chooseItem === "btn-message" ? (
+            <div className="sidebar-content-center">{renderListMessage()}</div>
+          ) : chooseItem === "btn-friend" ? (
+            renderTabFriend()
+          ) : (
+            ""
+          )}
         </div>
       </Col>
     </Row>

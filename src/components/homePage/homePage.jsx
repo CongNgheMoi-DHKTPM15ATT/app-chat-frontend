@@ -5,6 +5,7 @@ import SideBar from "../sideBar/sidebar";
 import Chat from "../chat/chat";
 import { io } from "socket.io-client";
 import { useSelector } from "react-redux";
+import ConversationAPI from "../../api/conversationAPI";
 
 const socket = io(process.env.REACT_APP_SOCKET_URL);
 
