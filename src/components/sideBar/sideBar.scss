@@ -11,6 +11,11 @@
     .ant-menu-item-icon {
       font-size: 22px !important;
     }
+    .ant-menu-submenu:nth-last-child(1) {
+      bottom: 0px;
+      position: fixed;
+      margin: 10px 0;
+    }
     .ant-menu-item:nth-child(1) {
       height: auto;
       padding: 0 calc(50% - 4vh);

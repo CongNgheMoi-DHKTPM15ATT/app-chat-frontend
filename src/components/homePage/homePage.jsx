@@ -1,19 +1,30 @@
 import { useEffect, useState } from "react";
-import { Button, Col, Row } from "antd";
-import { Link } from "react-router-dom";
+import { Button, Col, Modal, Row } from "antd";
+import { Link, useNavigate } from "react-router-dom";
 import SideBar from "../sideBar/sidebar";
 import Chat from "../chat/chat";
 import { io } from "socket.io-client";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import ConversationAPI from "../../api/conversationAPI";
+import { closeModalLogout } from "../../slide/modalSlide";
 
 const socket = io(process.env.REACT_APP_SOCKET_URL);
 
 function HomePage() {
   const account = useSelector((state) => state.account.account);
-  useEffect(() => {
-    socket.emit("addUser", { senderId: account._id });
-  }, []);
+  const modelLogout = useSelector((state) => state.modalLogout.openModal);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleOk = () => {
+    console.log("ok");
+    dispatch(closeModalLogout());
+    navigate("/login");
+  };
+  const handleCancel = () => {
+    console.log("cancel");
+    dispatch(closeModalLogout());
+  };
   return (
     <div className="homepage">
       <Row>
@@ -24,6 +35,15 @@ function HomePage() {
           <Chat socket={socket} />
         </Col>
       </Row>
+
+      <Modal
+        title="Cảnh báo"
+        open={modelLogout}
+        onOk={handleOk}
+        onCancel={handleCancel}
+      >
+        <p>Bạn muốn đăng xuất tài khoản trên thiết bị này !</p>
+      </Modal>
     </div>
   );
 }

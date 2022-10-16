@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Menu, Form, Input, Row, Col } from "antd";
+import { Menu, Form, Input, Row, Col, Modal } from "antd";
 import {
   MessageTwoTone,
   ContactsTwoTone,
@@ -9,16 +9,17 @@ import {
   UserAddOutlined,
   UsergroupDeleteOutlined,
   SearchOutlined,
+  LogoutOutlined,
 } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import ConversationAPI from "../../api/conversationAPI";
 import { createConversations } from "../../slide/conversationSlide";
 import { useDispatch } from "react-redux";
 import { setChatAccount } from "../../slide/chatSlide";
+import { showModalLogout } from "../../slide/modalSlide";
 
 function SideBar() {
   const account = useSelector((state) => state.account.account);
-  const chat = useSelector((state) => state.chat.account);
   const conversations = useSelector((state) => state.conversation.conver);
   const [chooseItem, setChooseItem] = useState("btn-message");
   const [chooseMessage, setChooseMessage] = useState(0);
@@ -32,6 +33,14 @@ function SideBar() {
       const response = await ConversationAPI.getConversationsById(params);
       const action = createConversations(response.conversations);
       dispatch(action);
+      const action_chat = setChatAccount({
+        receiver_id: response.conversations[0].receiver._id,
+        conversation_id: response.conversations[0]._id,
+        user_nick_name: response.conversations[0].nick_name,
+        receiver_nick_name: response.conversations[0].receiver.nick_name,
+      });
+      dispatch(action_chat);
+      console.log(response.conversations[0].receiver);
     } catch (error) {
       console.log("Failed to call API get Conversations By Id " + error);
     }
@@ -39,7 +48,6 @@ function SideBar() {
 
   useEffect(() => {
     handleGetConversations(account._id);
-    console.log("conver chat : " + chat.id);
   }, []);
 
   function changeCreate(date) {
@@ -62,7 +70,7 @@ function SideBar() {
             id={index}
             conver_id={conver._id}
             // name={user.name}
-            name={conver._id}
+            name={conver.receiver.user_name}
             avatar="../../assets/images/google-icon.jpg"
             content={conver.last_message.content}
             lastMess={changeCreate(conver.last_message.createdAt)}
@@ -78,7 +86,7 @@ function SideBar() {
       <div className="sidebar-content-center">
         <div className="tag-Friend">
           <UserAddOutlined />
-          <span>Thêm bạn bằng số điện thoại</span>
+          <span>Thêm bạn bè</span>
         </div>
         <div className="tag-Friend">
           <UsergroupDeleteOutlined />
@@ -114,8 +122,26 @@ function SideBar() {
       icon: <ContactsTwoTone />,
     },
     { label: "Thông báo", key: "btn-notifi", icon: <NotificationTwoTone /> },
-    { label: "Cài đặt", key: "btn-setting", icon: <SettingTwoTone /> },
+    {
+      label: "Cài đặt",
+      key: "btn-setting",
+      icon: <SettingTwoTone />,
+      children: [
+        {
+          label: "Đăng xuất",
+          key: "btn-logout",
+          icon: <LogoutOutlined />,
+          // onClick: { showModal },
+        },
+      ],
+    },
   ];
+  const onClicksideBar = (key) => {
+    setChooseItem(key);
+    if (key === "btn-logout") {
+      dispatch(showModalLogout());
+    }
+  };
 
   function MessageItem(props) {
     return (
@@ -124,11 +150,12 @@ function SideBar() {
         onClick={() => {
           setChooseMessage(props.id);
           const action = setChatAccount({
-            id: props.conver_id,
-            user_name: "hihi",
+            receiver_id: conversations[props.id].receiver._id,
+            conversation_id: conversations[props.id]._id,
+            user_nick_name: conversations[props.id].nick_name,
+            receiver_nick_name: conversations[props.id].receiver.nick_name,
           });
           dispatch(action);
-          console.log(action);
         }}
         className={"messageItem " + (chooseMessage == props.id ? "active" : "")}
       >
@@ -150,7 +177,6 @@ function SideBar() {
   }
 
   return (
-    // <div >
     <Row className="sidebar">
       <Col span={6}>
         <Menu
@@ -159,7 +185,7 @@ function SideBar() {
           inlineCollapsed={true}
           items={items}
           className="sidebar-menu"
-          onClick={(e) => setChooseItem(e.key)}
+          onClick={(e) => onClicksideBar(e.key)}
         />
       </Col>
       <Col span={18}>
@@ -177,7 +203,7 @@ function SideBar() {
             </Button> */}
             </Form>
           </div>
-          {chooseItem === "btn-message" ? (
+          {chooseItem === "btn-message" || chooseItem === "btn-logout" ? (
             <div className="sidebar-content-center">{renderListMessage()}</div>
           ) : chooseItem === "btn-friend" ? (
             renderTabFriend()
@@ -187,7 +213,6 @@ function SideBar() {
         </div>
       </Col>
     </Row>
-    // </div>
   );
 }
 

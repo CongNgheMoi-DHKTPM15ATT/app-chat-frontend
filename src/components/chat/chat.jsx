@@ -22,13 +22,47 @@ function Chat({ socket }) {
   const [rightTab, setRightTab] = useState(false);
   const [_listMessage, _setListMessage] = useState([]);
 
+  const handleSendMessage = async (message) => {
+    try {
+      const params = {
+        sender_id: _id,
+        conversation_id: chatAcount.conversation_id,
+        text: message.content,
+      };
+      const response = await messageAPI.sendMessage(params);
+      socket.emit("send", {
+        senderId: _id,
+        receiverId: chatAcount.receiver_id,
+        nick_name: chatAcount.user_nick_name,
+        text: message.content,
+      });
+      console.log(response);
+    } catch (error) {
+      console.log("Failed to call API send message" + error);
+    }
+  };
+
+  function createMess(content, content_type, deleted, user_id, name) {
+    const mess = {
+      content: content,
+      content_type: content_type,
+      deleted: deleted,
+      sender: {
+        user_id: user_id,
+        nick_name: name,
+      },
+    };
+    return mess;
+  }
+
   const getAllMess = async (conver_id) => {
     try {
       const params = {
         conversation_id: conver_id,
       };
       const response = await messageAPI.getAllMessage(params);
-      _setListMessage(response.message);
+      console.log(response.messages);
+      _setListMessage(response.messages);
     } catch (error) {
       console.log("Failed to call API get all message " + error);
     }
@@ -42,8 +76,8 @@ function Chat({ socket }) {
         <ChatItem
           key={index}
           content={mess.content}
-          senderId={mess.sender}
-          senderName={mess.senderName}
+          senderId={mess.sender.user_id}
+          senderName={mess.sender.nick_name}
           userID={_id}
         />
       );
@@ -52,23 +86,28 @@ function Chat({ socket }) {
   };
 
   useEffect(() => {
+    getAllMess(chatAcount.conversation_id);
+  }, [chatAcount]);
+
+  useEffect(() => {
+    socket.emit("addUser", { senderId: account._id });
+  }, []);
+
+  useEffect(() => {
     const addList = (data) => {
-      const mess = {
-        content: data.text,
-        content_type: "text",
-        senderId: data.senderId,
-        deleted: false,
-        // createAt: new Date(Date.now()),
-      };
+      const mess = createMess(
+        data.text,
+        "text",
+        false,
+        data.senderId,
+        data.nick_name
+      );
+      console.log(mess);
       _setListMessage((_listMessage) => [..._listMessage, mess]);
     };
     socket.on("getMessage", addList);
     return () => socket.off("getMessage", addList);
   }, [socket]);
-
-  useEffect(() => {
-    getAllMess(chatAcount.id);
-  }, [chatAcount]);
 
   const handleOneBlur = () => {
     let _text = document.getElementById("mess-text").innerHTML;
@@ -82,22 +121,15 @@ function Chat({ socket }) {
   const handleEmitMessage = () => {
     let _text = document.getElementById("mess-text");
     if (!(_text === "")) {
-      const mess = {
-        content: _text.innerHTML.trim(),
-        content_type: "text",
-        senderId: _id,
-        deleted: false,
-        // createAt: new Date(Date.now()),
-      };
+      const mess = createMess(
+        _text.innerHTML.trim(),
+        "text",
+        false,
+        _id,
+        chatAcount.user_nick_name
+      );
       _setListMessage((_listMessage) => [..._listMessage, mess]);
-      // _listMessage.push(mess);
-      // nguyenhainam_01 = 634255ff21fbe65180fa2f07;
-      // nguyenhainam_02 = 63425fe9468cba4024ddb894;
-      socket.emit("send", {
-        senderId: _id,
-        receiverId: "63425fe9468cba4024ddb894",
-        text: _text.innerHTML.trim(),
-      });
+      handleSendMessage(mess);
       setValue("");
     }
   };
