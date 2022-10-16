@@ -4,10 +4,7 @@ const user = createSlice({
   name: "user",
   initialState: {
     account: {
-      id: "",
-      user_name: "",
-      phone: "",
-      email: "",
+      _id: "",
     },
   },
   reducers: {

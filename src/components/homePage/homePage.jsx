@@ -7,6 +7,9 @@ import { io } from "socket.io-client";
 import { useSelector, useDispatch } from "react-redux";
 import ConversationAPI from "../../api/conversationAPI";
 import { closeModalLogout } from "../../slide/modalSlide";
+import { setAccount } from "../../slide/userSlide";
+import { setChatAccount } from "../../slide/chatSlide";
+import { createConversations } from "../../slide/conversationSlide";
 
 const socket = io(process.env.REACT_APP_SOCKET_URL);
 
@@ -18,6 +21,15 @@ function HomePage() {
 
   const handleOk = () => {
     console.log("ok");
+    const action = setAccount({ _id: "" });
+    dispatch(action);
+    dispatch(
+      setChatAccount({
+        id: "",
+        user_name: "",
+      })
+    );
+    dispatch(createConversations([]));
     dispatch(closeModalLogout());
     navigate("/login");
   };
