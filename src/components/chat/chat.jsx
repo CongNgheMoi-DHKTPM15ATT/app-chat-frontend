@@ -4,13 +4,11 @@ import {
   SendOutlined,
   PhoneTwoTone,
   VideoCameraTwoTone,
-  LeftSquareTwoTone,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
 } from "@ant-design/icons";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addMessage } from "../../slide/messageSlide";
 import ChatItem from "../chatItem/chatItem";
 import messageAPI from "../../api/messageAPI";
 
@@ -21,7 +19,47 @@ function Chat({ socket }) {
   const [value, setValue] = useState("");
   const [rightTab, setRightTab] = useState(false);
   const [_listMessage, _setListMessage] = useState([]);
+  const [pendingMess, setPendingMess] = useState("");
+  const content = useRef("");
+  const bottomRef = useRef(null);
 
+  //---- hàm kết nối với socket ----//
+  useEffect(() => {
+    socket.emit("addUser", { senderId: account._id });
+  }, []);
+  //---- hàm lấy toàn bộ tin nhắn khi có sự thay dổi người nhận tin nhắn ----//
+  useEffect(() => {
+    getAllMess(chatAcount.conversation_id);
+  }, [chatAcount]);
+
+  useEffect(() => {
+    if (pendingMess !== "") {
+      if (chatAcount.receiver_id === pendingMess.sender.user_id)
+        _setListMessage((_listMessage) => [pendingMess, ..._listMessage]);
+    }
+  }, [pendingMess]);
+
+  // useEffect(() => {
+  //   bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  //   console.log("find");
+  // }, [_listMessage]);
+
+  //---- hàm nhận tin nhắn từ socket gửi đến ----//
+  useEffect(() => {
+    socket.on("getMessage", (data) => {
+      const mess = createMess(
+        data.text,
+        "text",
+        false,
+        data.senderId,
+        data.nick_name
+      );
+      setPendingMess(mess);
+    });
+    // return () => socket.off("getMessage", addList);
+  }, [socket]);
+
+  //---- hàm gửi tin nhắn ----//
   const handleSendMessage = async (message) => {
     try {
       const params = {
@@ -36,12 +74,12 @@ function Chat({ socket }) {
         nick_name: chatAcount.user_nick_name,
         text: message.content,
       });
-      console.log(response);
+      _setListMessage((_listMessage) => [message, ..._listMessage]);
     } catch (error) {
       console.log("Failed to call API send message" + error);
     }
   };
-
+  //---- hàm tạo 1 đối tượng tin nhắn ----//
   function createMess(content, content_type, deleted, user_id, name) {
     const mess = {
       content: content,
@@ -54,24 +92,22 @@ function Chat({ socket }) {
     };
     return mess;
   }
-
+  //---- hàm lấy toàn bộ tin nhắn ----//
   const getAllMess = async (conver_id) => {
     try {
       const params = {
         conversation_id: conver_id,
       };
       const response = await messageAPI.getAllMessage(params);
-      console.log(response.messages);
       _setListMessage(response.messages);
     } catch (error) {
       console.log("Failed to call API get all message " + error);
     }
   };
-
+  //---- hàm render toàn bộ tin nhắn ----//
   const rederListMess = () => {
     const _ListMess = [];
     _listMessage.map((mess, index) => {
-      console.log(mess);
       _ListMess.push(
         <ChatItem
           key={index}
@@ -85,30 +121,6 @@ function Chat({ socket }) {
     return _ListMess;
   };
 
-  useEffect(() => {
-    getAllMess(chatAcount.conversation_id);
-  }, [chatAcount]);
-
-  useEffect(() => {
-    socket.emit("addUser", { senderId: account._id });
-  }, []);
-
-  useEffect(() => {
-    const addList = (data) => {
-      const mess = createMess(
-        data.text,
-        "text",
-        false,
-        data.senderId,
-        data.nick_name
-      );
-      console.log(mess);
-      _setListMessage((_listMessage) => [..._listMessage, mess]);
-    };
-    socket.on("getMessage", addList);
-    return () => socket.off("getMessage", addList);
-  }, [socket]);
-
   const handleOneBlur = () => {
     let _text = document.getElementById("mess-text").innerHTML;
     if (_text.trim() === "") setValue("");
@@ -117,18 +129,17 @@ function Chat({ socket }) {
   const openCloseRightTab = () => {
     setRightTab(!rightTab);
   };
-
+  //---- hàm gửi tin nhắn ----//
   const handleEmitMessage = () => {
-    let _text = document.getElementById("mess-text");
+    const _text = content.current.resizableTextArea.props.value;
     if (!(_text === "")) {
       const mess = createMess(
-        _text.innerHTML.trim(),
+        _text,
         "text",
         false,
         _id,
         chatAcount.user_nick_name
       );
-      _setListMessage((_listMessage) => [..._listMessage, mess]);
       handleSendMessage(mess);
       setValue("");
     }
@@ -142,12 +153,12 @@ function Chat({ socket }) {
             <div className="chat-header-info">
               <div className="chat-header-info-img">
                 <img
-                  src={require("../../assets/images/google-icon.jpg")}
+                  src={require("../../assets/images/user-icon_03.png")}
                   alt="avatar"
                 />
               </div>
               <div className="chat-header-info-name">
-                <p>Nguyễn Hải Nam</p>
+                <p>{chatAcount.receiver_nick_name}</p>
               </div>
             </div>
             <div className="chat-header-toolbar">
@@ -175,6 +186,7 @@ function Chat({ socket }) {
               <Form.Item className="chat-footer-input-form">
                 <TextArea
                   id="mess-text"
+                  ref={content}
                   className="text-area"
                   placeholder="Nhập tin nhắn...."
                   value={value}

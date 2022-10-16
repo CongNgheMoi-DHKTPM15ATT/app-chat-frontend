@@ -1,15 +1,22 @@
 import { useEffect, useState } from "react";
 import { Button, Col, Modal, Row } from "antd";
-import { Link, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  Routes,
+  Route,
+  Navigate,
+  matchRoutes,
+} from "react-router-dom";
 import SideBar from "../sideBar/sidebar";
 import Chat from "../chat/chat";
 import { io } from "socket.io-client";
 import { useSelector, useDispatch } from "react-redux";
-import ConversationAPI from "../../api/conversationAPI";
 import { closeModalLogout } from "../../slide/modalSlide";
 import { setAccount } from "../../slide/userSlide";
 import { setChatAccount } from "../../slide/chatSlide";
 import { createConversations } from "../../slide/conversationSlide";
+import ListFriend from "../listFriend/listFriend";
 
 const socket = io(process.env.REACT_APP_SOCKET_URL);
 
@@ -25,8 +32,10 @@ function HomePage() {
     dispatch(action);
     dispatch(
       setChatAccount({
-        id: "",
-        user_name: "",
+        receiver_nick_name: "",
+        user_nick_name: "",
+        conversation_id: "",
+        receiver_id: "",
       })
     );
     dispatch(createConversations([]));
@@ -41,11 +50,30 @@ function HomePage() {
     <div className="homepage">
       <Row>
         <Col span={6}>
-          <SideBar />
+          <SideBar socket={socket} />
         </Col>
-        <Col span={18}>
-          <Chat socket={socket} />
-        </Col>
+        <Routes>
+          <Route
+            path="/list-friend"
+            element={
+              <PrivateRoute>
+                <Col span={18}>
+                  <ListFriend socket={socket} />
+                </Col>
+              </PrivateRoute>
+            }
+          ></Route>
+          <Route
+            path="/message"
+            element={
+              <PrivateRoute>
+                <Col span={18}>
+                  <Chat socket={socket} />
+                </Col>
+              </PrivateRoute>
+            }
+          ></Route>
+        </Routes>
       </Row>
 
       <Modal
@@ -54,10 +82,24 @@ function HomePage() {
         onOk={handleOk}
         onCancel={handleCancel}
       >
-        <p>Bạn muốn đăng xuất tài khoản trên thiết bị này !</p>
+        <p
+          style={{ textAlign: "center", fontWeight: "500", fontSize: "1.2em" }}
+        >
+          Bạn muốn đăng xuất tài khoản trên thiết bị này !
+        </p>
       </Modal>
     </div>
   );
 }
 
 export default HomePage;
+
+function useAuth() {
+  const account = useSelector((state) => state.account.account);
+  return account._id !== "";
+}
+
+function PrivateRoute({ children }) {
+  const auth = useAuth();
+  return auth ? children : <Navigate to="/login" />;
+}

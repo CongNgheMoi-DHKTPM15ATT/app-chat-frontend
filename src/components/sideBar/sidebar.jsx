@@ -17,13 +17,60 @@ import { createConversations } from "../../slide/conversationSlide";
 import { useDispatch } from "react-redux";
 import { setChatAccount } from "../../slide/chatSlide";
 import { showModalLogout } from "../../slide/modalSlide";
+import { Link } from "react-router-dom";
 
-function SideBar() {
+function SideBar({ socket }) {
   const account = useSelector((state) => state.account.account);
+  const chatAcount = useSelector((state) => state.chat.account);
   const conversations = useSelector((state) => state.conversation.conver);
   const [chooseItem, setChooseItem] = useState("btn-message");
   const [chooseMessage, setChooseMessage] = useState(0);
+  const [chooseFriend, setChooseFriend] = useState(0);
+  const [chooseConver, setChooseConver] = useState("");
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    handleGetConversations(account._id);
+  }, []);
+
+  useEffect(() => {
+    setChooseConver(chatAcount.conversation_id);
+  }, [chatAcount]);
+
+  useEffect(() => {
+    console.log(chooseFriend);
+  }, [chooseFriend]);
+
+  useEffect(() => {
+    console.log(chooseConver);
+  }, [chooseConver]);
+
+  useEffect(() => {
+    if (chatAcount.conversation_id === "" && conversations.length > 0) {
+      const action = setChatAccount({
+        receiver_id: conversations[0].receiver._id,
+        conversation_id: conversations[0]._id,
+        user_nick_name: conversations[0].nick_name,
+        receiver_nick_name: conversations[0].receiver.nick_name,
+      });
+      dispatch(action);
+      setChooseMessage(0);
+    } else {
+      setChooseMessage(
+        conversations.findIndex((conver) => conver._id === chooseConver)
+      );
+    }
+  }, [conversations]);
+
+  //---- hàm nhận tin nhắn từ socket gửi đến ----//
+  useEffect(() => {
+    const changeConver = () => {
+      handleGetConversations(account._id);
+    };
+    socket.on("getMessage", changeConver);
+    socket.on("load-conver", changeConver);
+    return () => socket.off("getMessage", changeConver);
+  }, [socket]);
 
   const handleGetConversations = async (id) => {
     try {
@@ -33,22 +80,10 @@ function SideBar() {
       const response = await ConversationAPI.getConversationsById(params);
       const action = createConversations(response.conversations);
       dispatch(action);
-      const action_chat = setChatAccount({
-        receiver_id: response.conversations[0].receiver._id,
-        conversation_id: response.conversations[0]._id,
-        user_nick_name: response.conversations[0].nick_name,
-        receiver_nick_name: response.conversations[0].receiver.nick_name,
-      });
-      dispatch(action_chat);
-      console.log(response.conversations[0].receiver);
     } catch (error) {
       console.log("Failed to call API get Conversations By Id " + error);
     }
   };
-
-  useEffect(() => {
-    handleGetConversations(account._id);
-  }, []);
 
   function changeCreate(date) {
     const time = Math.abs(new Date() - new Date(date));
@@ -70,8 +105,8 @@ function SideBar() {
             id={index}
             conver_id={conver._id}
             // name={user.name}
-            name={conver.receiver.user_name}
-            avatar="../../assets/images/google-icon.jpg"
+            name={conver.receiver.nick_name}
+            avatar="../../assets/images/user-icon_03.png"
             content={conver.last_message.content}
             lastMess={changeCreate(conver.last_message.createdAt)}
           ></MessageItem>
@@ -84,21 +119,35 @@ function SideBar() {
   function renderTabFriend() {
     return (
       <div className="sidebar-content-center">
-        <div className="tag-Friend">
+        <Link to="/home/list-friend">
+          <div
+            className={"tag-Friend " + (chooseFriend == 0 ? "active" : "")}
+            onClick={() => setChooseFriend(0)}
+          >
+            <UnorderedListOutlined />
+            <span>Danh sách bạn bè</span>
+          </div>
+        </Link>
+        <div
+          className={"tag-Friend " + (chooseFriend == 1 ? "active" : "")}
+          onClick={() => setChooseFriend(1)}
+        >
+          <UnorderedListOutlined />
+          <span>Danh sách nhóm</span>
+        </div>
+        <div
+          className={"tag-Friend " + (chooseFriend == 2 ? "active" : "")}
+          onClick={() => setChooseFriend(2)}
+        >
           <UserAddOutlined />
           <span>Thêm bạn bè</span>
         </div>
-        <div className="tag-Friend">
+        <div
+          className={"tag-Friend " + (chooseFriend == 3 ? "active" : "")}
+          onClick={() => setChooseFriend(3)}
+        >
           <UsergroupDeleteOutlined />
           <span>Tạo nhóm</span>
-        </div>
-        <div className="tag-Friend">
-          <UnorderedListOutlined />
-          <span>Danh sách bạn bè</span>
-        </div>
-        <div className="tag-Friend">
-          <UnorderedListOutlined />
-          <span>Danh sách nhóm</span>
         </div>
       </div>
     );
@@ -106,18 +155,22 @@ function SideBar() {
 
   const items = [
     {
-      label: "Nguyễn Hải Nam",
-      key: `${account.user_name}`,
+      label: `${account.user_name}`,
+      key: "btn-user",
       icon: (
         <img
-          src={require("../../assets/images/google-icon.jpg")}
+          src={require("../../assets/images/user-icon_03.png")}
           alt="avatar"
         />
       ),
     },
-    { label: "Tin nhắn", key: "btn-message", icon: <MessageTwoTone /> },
     {
-      label: "Bạn bè",
+      label: <Link to="/home/message">tin nhắn</Link>,
+      key: "btn-message",
+      icon: <MessageTwoTone />,
+    },
+    {
+      label: <Link to="/home/list-friend">Bạn bè</Link>,
       key: "btn-friend",
       icon: <ContactsTwoTone />,
     },
@@ -161,7 +214,7 @@ function SideBar() {
       >
         <div className="messageItem-left">
           <img
-            src={require("../../assets/images/google-icon.jpg")}
+            src={require("../../assets/images/user-icon_03.png")}
             alt="avatar"
           />
         </div>

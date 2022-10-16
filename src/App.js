@@ -28,15 +28,16 @@ function App() {
             }
           />
           <Route
-            path="/register"
+            path="/home"
             element={
               <PrivateRoute>
-                <Register />
+                <Navigate replace to="/home/message" />
               </PrivateRoute>
             }
           />
+          <Route path="/register" element={<Register />} />
           <Route
-            path="/home"
+            path="/home/*"
             element={
               <PrivateRoute>
                 <HomePage />

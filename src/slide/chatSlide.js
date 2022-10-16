@@ -4,8 +4,10 @@ const chat = createSlice({
   name: "chat",
   initialState: {
     account: {
-      id: "",
-      user_name: "",
+      receiver_nick_name: "",
+      user_nick_name: "",
+      conversation_id: "",
+      receiver_id: "",
     },
   },
   reducers: {
