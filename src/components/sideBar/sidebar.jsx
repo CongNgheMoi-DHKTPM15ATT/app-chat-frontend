@@ -80,6 +80,7 @@ function SideBar({ socket }) {
       const response = await ConversationAPI.getConversationsById(params);
       const action = createConversations(response.conversations);
       dispatch(action);
+      console.log(response.conversations);
     } catch (error) {
       console.log("Failed to call API get Conversations By Id " + error);
     }

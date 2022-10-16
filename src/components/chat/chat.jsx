@@ -21,6 +21,7 @@ function Chat({ socket }) {
   const [_listMessage, _setListMessage] = useState([]);
   const [pendingMess, setPendingMess] = useState("");
   const content = useRef("");
+  const ngay_trong_tuan = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
   const bottomRef = useRef(null);
 
   //---- hàm kết nối với socket ----//
@@ -81,10 +82,12 @@ function Chat({ socket }) {
   };
   //---- hàm tạo 1 đối tượng tin nhắn ----//
   function createMess(content, content_type, deleted, user_id, name) {
+    const d = new Date();
     const mess = {
       content: content,
       content_type: content_type,
       deleted: deleted,
+      createdAt: d,
       sender: {
         user_id: user_id,
         nick_name: name,
@@ -104,19 +107,55 @@ function Chat({ socket }) {
       console.log("Failed to call API get all message " + error);
     }
   };
+
+  function renderLine(time) {
+    const d = new Date(time);
+    return (
+      <div className="line">
+        <p>
+          {Math.abs(new Date() - new Date(time)) > 1000 * 60 * 60 * 24 * 7
+            ? `${d.getHours()}:${d.getMinutes()} ${d.getDate()}Tháng${
+                d.getMonth() + 1
+              }, ${d.getFullYear()}`
+            : `${
+                ngay_trong_tuan[d.getDay()]
+              } ${d.getHours()}:${d.getMinutes()}`}
+        </p>
+      </div>
+    );
+  }
+
   //---- hàm render toàn bộ tin nhắn ----//
   const rederListMess = () => {
     const _ListMess = [];
+    var loadImg = "";
+    var check = true;
+    var befor_date = "";
     _listMessage.map((mess, index) => {
+      if (loadImg !== mess.sender.user_id) check = true;
+      loadImg = mess.sender.user_id;
+      if (
+        Math.abs(
+          new Date(befor_date).getDate() - new Date(mess.createdAt).getDate()
+        ) > 0 ||
+        Math.abs(new Date(befor_date) - new Date(mess.createdAt)) > 600000
+      ) {
+        _ListMess.push(renderLine(mess.createdAt));
+        check = true;
+      }
       _ListMess.push(
         <ChatItem
           key={index}
           content={mess.content}
           senderId={mess.sender.user_id}
           senderName={mess.sender.nick_name}
+          loadImg={check}
+          createdAt={mess.createdAt}
           userID={_id}
         />
       );
+      check = false;
+      befor_date = mess.createdAt;
     });
     return _ListMess;
   };
