@@ -1,13 +1,6 @@
-import { useEffect, useState } from "react";
-import { Button, Col, Modal, Row } from "antd";
-import {
-  Link,
-  useNavigate,
-  Routes,
-  Route,
-  Navigate,
-  matchRoutes,
-} from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Button, Col, Form, Input, Modal, Row } from "antd";
+import { Link, useNavigate, Routes, Route, Navigate } from "react-router-dom";
 import SideBar from "../sideBar/sidebar";
 import Chat from "../chat/chat";
 import { io } from "socket.io-client";
@@ -17,15 +10,28 @@ import { setAccount } from "../../slide/userSlide";
 import { setChatAccount } from "../../slide/chatSlide";
 import { createConversations } from "../../slide/conversationSlide";
 import ListFriend from "../listFriend/listFriend";
+import {
+  closeModelAddFriend,
+  showModelAddFriend,
+} from "../../slide/modalAddFriendSlide";
 
 const socket = io(process.env.REACT_APP_SOCKET_URL);
 
 function HomePage() {
   const account = useSelector((state) => state.account.account);
   const modelLogout = useSelector((state) => state.modalLogout.openModal);
+  const modelAddFriend = useSelector((state) => state.modelAddFriend.openModal);
+  const formRef = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const handleOk_modelAddFriend = (value) => {
+    console.log(value);
+    dispatch(closeModelAddFriend());
+  };
+  const handleCancel_modelAddFriend = () => {
+    dispatch(closeModelAddFriend());
+  };
   const handleOk = () => {
     console.log("ok");
     const action = setAccount({ _id: "" });
@@ -87,6 +93,41 @@ function HomePage() {
         >
           Bạn muốn đăng xuất tài khoản trên thiết bị này !
         </p>
+      </Modal>
+
+      <Modal
+        title="Thêm bạn bè"
+        open={modelAddFriend}
+        // onOk={handleOk_modelAddFriend}
+        // onCancel={handleCancel_modelAddFriend}
+        className="modal-addfriend"
+        footer={null}
+      >
+        <Form
+          //onSubmit={(e) => console.log(e)}
+          onFinish={(value) => handleOk_modelAddFriend(value)}
+          name="search-form"
+          method="post"
+        >
+          <Form.Item required tooltip="không được để trống" name="soDienThoai">
+            <Input placeholder="Số điện thoại" ref={formRef} />
+          </Form.Item>
+          <Form.Item className="modal-addfriend-footer">
+            <Button
+              onClick={handleCancel_modelAddFriend}
+              className="modal-addfriend-footer-btn"
+            >
+              Hủy
+            </Button>
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="modal-addfriend-footer-btn"
+            >
+              Tìm kiếm
+            </Button>
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   );

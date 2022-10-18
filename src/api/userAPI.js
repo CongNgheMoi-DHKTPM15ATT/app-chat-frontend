@@ -8,16 +8,16 @@ const userAPI = {
 
   RegisterByUserName: (params) => {
     const url = "/auth/register";
-    return axiosClient.post(url,params);
+    return axiosClient.post(url, params);
   },
   loginByUserName: (params) => {
     const url = "/auth/login";
-    return axiosClient.post(url,params);
+    return axiosClient.post(url, params);
   },
-  // getAll: (params) => {
-  //   const url = "/products";
-  //   return axiosClient.get(url, { params });
-  // },
-}
+  searchUser: (params) => {
+    const url = "/user/search";
+    return axiosClient.post(url, params);
+  },
+};
 
 export default userAPI;

@@ -1,11 +1,13 @@
 import { Button, Col, Form, Row } from "antd";
 import TextArea from "antd/lib/input/TextArea";
+import InputEmoji from "react-input-emoji";
 import {
   SendOutlined,
   PhoneTwoTone,
   VideoCameraTwoTone,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  SmileTwoTone,
 } from "@ant-design/icons";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -132,28 +134,43 @@ function Chat({ socket }) {
     var check = true;
     var befor_date = "";
     _listMessage.map((mess, index) => {
-      if (loadImg !== mess.sender.user_id) check = true;
-      loadImg = mess.sender.user_id;
-      if (
-        Math.abs(
-          new Date(befor_date).getDate() - new Date(mess.createdAt).getDate()
-        ) > 0 ||
-        Math.abs(new Date(befor_date) - new Date(mess.createdAt)) > 600000
-      ) {
-        _ListMess.push(renderLine(mess.createdAt));
-        check = true;
+      if (index === 0) {
+        _ListMess.push(
+          <ChatItem
+            key={index}
+            content={mess.content}
+            senderId={mess.sender.user_id}
+            senderName={mess.sender.nick_name}
+            loadImg={check}
+            createdAt={mess.createdAt}
+            userID={_id}
+          />
+        );
+        loadImg = mess.sender.user_id;
+      } else {
+        if (
+          Math.abs(
+            new Date(befor_date).getDate() - new Date(mess.createdAt).getDate()
+          ) > 0 ||
+          Math.abs(new Date(befor_date) - new Date(mess.createdAt)) > 600000
+        ) {
+          _ListMess.push(renderLine(befor_date));
+          check = true;
+        }
+        if (loadImg !== mess.sender.user_id) check = true;
+        loadImg = mess.sender.user_id;
+        _ListMess.push(
+          <ChatItem
+            key={index}
+            content={mess.content}
+            senderId={mess.sender.user_id}
+            senderName={mess.sender.nick_name}
+            loadImg={check}
+            createdAt={mess.createdAt}
+            userID={_id}
+          />
+        );
       }
-      _ListMess.push(
-        <ChatItem
-          key={index}
-          content={mess.content}
-          senderId={mess.sender.user_id}
-          senderName={mess.sender.nick_name}
-          loadImg={check}
-          createdAt={mess.createdAt}
-          userID={_id}
-        />
-      );
       check = false;
       befor_date = mess.createdAt;
     });
@@ -170,7 +187,8 @@ function Chat({ socket }) {
   };
   //---- hàm gửi tin nhắn ----//
   const handleEmitMessage = () => {
-    const _text = content.current.resizableTextArea.props.value;
+    const _text = value;
+    setValue("");
     if (!(_text === "")) {
       const mess = createMess(
         _text,
@@ -180,7 +198,6 @@ function Chat({ socket }) {
         chatAcount.user_nick_name
       );
       handleSendMessage(mess);
-      setValue("");
     }
   };
 
@@ -223,27 +240,27 @@ function Chat({ socket }) {
             <div className="chat-footer-toolbar"></div>
             <Form className="chat-footer-input">
               <Form.Item className="chat-footer-input-form">
-                <TextArea
-                  id="mess-text"
-                  ref={content}
+                <InputEmoji
                   className="text-area"
-                  placeholder="Nhập tin nhắn...."
                   value={value}
-                  onChange={(e) => setValue(e.target.value)}
-                  onPressEnter={handleEmitMessage}
-                  onBlur={handleOneBlur}
-                  autoSize={{
-                    minRows: 1,
-                    maxRows: 3,
-                  }}
+                  ref={content}
+                  onChange={setValue}
+                  onEnter={handleEmitMessage}
+                  placeholder="Nhập tin nhắn...."
                 />
               </Form.Item>
               <Form.Item className="chat-footer-input-action">
                 {/* <Button htmlType="submit" className="action-icon"><SendOutlined /></Button> */}
-                <Button className="action-icon" onClick={handleEmitMessage}>
-                  Gửi
-                  <SendOutlined />
-                </Button>
+                {value !== "" ? (
+                  <Button className="action-icon" onClick={handleEmitMessage}>
+                    {/* Gửi */}
+                    <SendOutlined />
+                  </Button>
+                ) : (
+                  <button className="action-icon" onClick={handleEmitMessage}>
+                    <p>&#128077;</p>
+                  </button>
+                )}
               </Form.Item>
             </Form>
           </div>

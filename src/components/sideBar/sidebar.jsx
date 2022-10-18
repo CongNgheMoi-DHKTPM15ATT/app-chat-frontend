@@ -10,6 +10,7 @@ import {
   UsergroupDeleteOutlined,
   SearchOutlined,
   LogoutOutlined,
+  CloseCircleOutlined,
 } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import ConversationAPI from "../../api/conversationAPI";
@@ -18,15 +19,21 @@ import { useDispatch } from "react-redux";
 import { setChatAccount } from "../../slide/chatSlide";
 import { showModalLogout } from "../../slide/modalSlide";
 import { Link } from "react-router-dom";
+import { showModelAddFriend } from "../../slide/modalAddFriendSlide";
+import userAPI from "../../api/userAPI";
 
 function SideBar({ socket }) {
   const account = useSelector((state) => state.account.account);
   const chatAcount = useSelector((state) => state.chat.account);
   const conversations = useSelector((state) => state.conversation.conver);
   const [chooseItem, setChooseItem] = useState("btn-message");
+  const [list_friend, setList_friend] = useState([]);
   const [chooseMessage, setChooseMessage] = useState(0);
+  const [chooseUser, setChooseUser] = useState(-1);
   const [chooseFriend, setChooseFriend] = useState(0);
   const [chooseConver, setChooseConver] = useState("");
+  const [search, setSearch] = useState(true);
+  const [txt_search, setTxt_Search] = useState("");
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -44,6 +51,11 @@ function SideBar({ socket }) {
   useEffect(() => {
     console.log(chooseConver);
   }, [chooseConver]);
+
+  useEffect(() => {
+    if (list_friend.length > 0) setSearch(false);
+    setChooseUser(-1);
+  }, [list_friend]);
 
   useEffect(() => {
     if (chatAcount.conversation_id === "" && conversations.length > 0) {
@@ -83,6 +95,32 @@ function SideBar({ socket }) {
       console.log(response.conversations);
     } catch (error) {
       console.log("Failed to call API get Conversations By Id " + error);
+    }
+  };
+
+  const handleGetListSearch = async (text) => {
+    try {
+      const params = {
+        user_id: account._id,
+        filter: text,
+      };
+      const response = await userAPI.searchUser(params);
+      setList_friend(response);
+    } catch (error) {
+      console.log("Failed to call API get list search" + error);
+    }
+  };
+
+  const handleCreateConversation = async (user_id) => {
+    try {
+      const params = {
+        user_id: [account._id, user_id],
+      };
+      const response = await ConversationAPI.createConversation(params);
+      console.log(response);
+      setChooseConver(response._id);
+    } catch (error) {
+      console.log("Failed to call API get list search" + error);
     }
   };
 
@@ -138,7 +176,10 @@ function SideBar({ socket }) {
         </div>
         <div
           className={"tag-Friend " + (chooseFriend == 2 ? "active" : "")}
-          onClick={() => setChooseFriend(2)}
+          onClick={() => {
+            setChooseFriend(2);
+            dispatch(showModelAddFriend());
+          }}
         >
           <UserAddOutlined />
           <span>Thêm bạn bè</span>
@@ -194,6 +235,22 @@ function SideBar({ socket }) {
     setChooseItem(key);
     if (key === "btn-logout") {
       dispatch(showModalLogout());
+    } else if (key === "btn-message") {
+      setSearch(true);
+      setTxt_Search("");
+      changeAcountbyChooseMessage(chooseMessage);
+    } else if (key === "btn-user") {
+      setTxt_Search("");
+      changeAcountbyChooseMessage(chooseMessage);
+      setSearch(true);
+    } else if (key === "btn-notifi") {
+      setTxt_Search("");
+      changeAcountbyChooseMessage(chooseMessage);
+      setSearch(true);
+    } else if (key === "btn-friend") {
+      changeAcountbyChooseMessage(chooseMessage);
+      setSearch(true);
+      setTxt_Search("");
     }
   };
 
@@ -230,9 +287,73 @@ function SideBar({ socket }) {
     );
   }
 
+  const changeAcountbyChooseMessage = (index) => {
+    const action = setChatAccount({
+      receiver_id: conversations[index].receiver._id,
+      conversation_id: conversations[index]._id,
+      user_nick_name: conversations[index].nick_name,
+      receiver_nick_name: conversations[index].receiver.nick_name,
+    });
+    dispatch(action);
+  };
+
+  function UserItem(props) {
+    return (
+      <div
+        id={props.id}
+        onClick={() => {
+          setChooseUser(props.id);
+          console.log(props);
+          if (props.user.conversation !== null) {
+            const action = setChatAccount({
+              receiver_id: props.user._id,
+              conversation_id: props.user.conversation,
+              user_nick_name: account._id,
+              receiver_nick_name: props.user.nick_name,
+            });
+            dispatch(action);
+          }
+        }}
+        className={"messageItem " + (chooseUser == props.id ? "active" : "")}
+      >
+        <div className="messageItem-left">
+          <img
+            src={require("../../assets/images/user-icon_03.png")}
+            alt="avatar"
+          />
+        </div>
+        <div className="messageItem-center">
+          <div className="message-name">{props.user.nick_name}</div>
+          <div className="message-status">
+            {props.user.conversation === null
+              ? "Chưa yêu cầu"
+              : "Đã trò chuyện"}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function rederListUser() {
+    var render_list_friend = [];
+    if (list_friend.length == 0) {
+      return (
+        <p style={{ margin: "2vw", fontWeight: "500" }}>
+          Không có người dùng tương thích với yêu cầu tìm kiếm
+        </p>
+      );
+    }
+    list_friend.map((user, index) => {
+      render_list_friend.push(
+        <UserItem key={index} id={index} user={user}></UserItem>
+      );
+    });
+    return render_list_friend;
+  }
+
   return (
     <Row className="sidebar">
-      <Col span={6}>
+      <Col span={4}>
         <Menu
           defaultSelectedKeys="btn-message"
           mode="inline"
@@ -242,22 +363,36 @@ function SideBar({ socket }) {
           onClick={(e) => onClicksideBar(e.key)}
         />
       </Col>
-      <Col span={18}>
+      <Col span={20}>
         <div className="sidebar-content">
           <div className="sidebar-content-header">
             <Form className="form-search">
+              {/* <Form.Item> */}
               <Input
                 prefix={<SearchOutlined />}
                 placeholder="Tìm kiếm "
                 type="text"
+                value={txt_search}
                 className="txt-search"
+                onChange={(e) => {
+                  setTxt_Search(e.target.value);
+                  handleGetListSearch(e.target.value);
+                }}
               />
-              {/* <Button htmlType="submit" className="btn-search">
-              <SearchOutlined />
-            </Button> */}
+              <CloseCircleOutlined
+                className={"clear-text " + (search ? "clear-text-hidden" : "")}
+                onClick={() => {
+                  setTxt_Search("");
+                  setSearch(true);
+                  changeAcountbyChooseMessage(chooseMessage);
+                }}
+              />
+              {/* </Form.Item> */}
             </Form>
           </div>
-          {chooseItem === "btn-message" || chooseItem === "btn-logout" ? (
+          {search === false ? (
+            <div className="sidebar-content-center">{rederListUser()}</div>
+          ) : chooseItem === "btn-message" || chooseItem === "btn-logout" ? (
             <div className="sidebar-content-center">{renderListMessage()}</div>
           ) : chooseItem === "btn-friend" ? (
             renderTabFriend()

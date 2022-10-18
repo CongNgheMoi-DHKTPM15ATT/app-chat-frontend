@@ -19,3 +19,15 @@
   //   //   background-color: rgb(70, 83, 233);
   //   // }
 }
+.modal-addfriend {
+  max-width: 30vw !important;
+  &-footer {
+    // background-color: aqua !important;
+    display: flex;
+    flex-direction: row-reverse;
+    margin-bottom: 0;
+    &-btn {
+      margin-left: 10px;
+    }
+  }
+}
