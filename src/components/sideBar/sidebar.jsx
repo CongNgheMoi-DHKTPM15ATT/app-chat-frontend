@@ -11,6 +11,8 @@ import {
   SearchOutlined,
   LogoutOutlined,
   CloseCircleOutlined,
+  UsergroupAddOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import ConversationAPI from "../../api/conversationAPI";
@@ -19,7 +21,7 @@ import { useDispatch } from "react-redux";
 import { setChatAccount } from "../../slide/chatSlide";
 import { showModalLogout } from "../../slide/modalSlide";
 import { Link } from "react-router-dom";
-import { showModelAddFriend } from "../../slide/modalAddFriendSlide";
+import { addUser, showModelAddFriend } from "../../slide/modalAddFriendSlide";
 import userAPI from "../../api/userAPI";
 
 function SideBar({ socket }) {
@@ -35,6 +37,11 @@ function SideBar({ socket }) {
   const [search, setSearch] = useState(true);
   const [txt_search, setTxt_Search] = useState("");
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    handleGetConversations(account._id);
+    console.log("hihi");
+  }, [chooseItem]);
 
   useEffect(() => {
     handleGetConversations(account._id);
@@ -91,6 +98,7 @@ function SideBar({ socket }) {
       };
       const response = await ConversationAPI.getConversationsById(params);
       const action = createConversations(response.conversations);
+      console.log(response);
       dispatch(action);
       console.log(response.conversations);
     } catch (error) {
@@ -106,19 +114,6 @@ function SideBar({ socket }) {
       };
       const response = await userAPI.searchUser(params);
       setList_friend(response);
-    } catch (error) {
-      console.log("Failed to call API get list search" + error);
-    }
-  };
-
-  const handleCreateConversation = async (user_id) => {
-    try {
-      const params = {
-        user_id: [account._id, user_id],
-      };
-      const response = await ConversationAPI.createConversation(params);
-      console.log(response);
-      setChooseConver(response._id);
     } catch (error) {
       console.log("Failed to call API get list search" + error);
     }
@@ -163,7 +158,7 @@ function SideBar({ socket }) {
             className={"tag-Friend " + (chooseFriend == 0 ? "active" : "")}
             onClick={() => setChooseFriend(0)}
           >
-            <UnorderedListOutlined />
+            <TeamOutlined />
             <span>Danh sách bạn bè</span>
           </div>
         </Link>
@@ -178,7 +173,6 @@ function SideBar({ socket }) {
           className={"tag-Friend " + (chooseFriend == 2 ? "active" : "")}
           onClick={() => {
             setChooseFriend(2);
-            dispatch(showModelAddFriend());
           }}
         >
           <UserAddOutlined />
@@ -188,7 +182,7 @@ function SideBar({ socket }) {
           className={"tag-Friend " + (chooseFriend == 3 ? "active" : "")}
           onClick={() => setChooseFriend(3)}
         >
-          <UsergroupDeleteOutlined />
+          <UsergroupAddOutlined />
           <span>Tạo nhóm</span>
         </div>
       </div>
@@ -240,17 +234,17 @@ function SideBar({ socket }) {
       setTxt_Search("");
       changeAcountbyChooseMessage(chooseMessage);
     } else if (key === "btn-user") {
+      setSearch(true);
       setTxt_Search("");
       changeAcountbyChooseMessage(chooseMessage);
-      setSearch(true);
     } else if (key === "btn-notifi") {
+      setSearch(true);
       setTxt_Search("");
       changeAcountbyChooseMessage(chooseMessage);
-      setSearch(true);
     } else if (key === "btn-friend") {
-      changeAcountbyChooseMessage(chooseMessage);
       setSearch(true);
       setTxt_Search("");
+      changeAcountbyChooseMessage(chooseMessage);
     }
   };
 
@@ -288,6 +282,7 @@ function SideBar({ socket }) {
   }
 
   const changeAcountbyChooseMessage = (index) => {
+    if (conversations.length <= 0) return;
     const action = setChatAccount({
       receiver_id: conversations[index].receiver._id,
       conversation_id: conversations[index]._id,
@@ -312,6 +307,9 @@ function SideBar({ socket }) {
               receiver_nick_name: props.user.nick_name,
             });
             dispatch(action);
+          } else {
+            dispatch(addUser({ receiver_id: props.user._id }));
+            dispatch(showModelAddFriend());
           }
         }}
         className={"messageItem " + (chooseUser == props.id ? "active" : "")}
@@ -384,6 +382,7 @@ function SideBar({ socket }) {
                 onClick={() => {
                   setTxt_Search("");
                   setSearch(true);
+                  setList_friend([]);
                   changeAcountbyChooseMessage(chooseMessage);
                 }}
               />

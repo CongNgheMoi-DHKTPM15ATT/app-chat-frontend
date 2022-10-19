@@ -19,6 +19,11 @@ function App() {
           ) : (
             <Route path="/login" element={<Navigate replace to="/home" />} />
           )}
+          {account._id === "" ? (
+            <Route path="/register" element={<Register />} />
+          ) : (
+            <Route path="/register" element={<Navigate replace to="/home" />} />
+          )}
           <Route
             path="/"
             element={

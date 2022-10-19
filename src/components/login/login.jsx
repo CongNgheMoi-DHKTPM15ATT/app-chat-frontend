@@ -6,14 +6,29 @@ import { useEffect } from "react";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setAccount } from "../../slide/userSlide";
+import Swal from "sweetalert2";
 
 function Login({ socket }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const showAlert = () => {
+    Swal.fire({
+      position: "top",
+      width: 400,
+      timerProgressBar: true,
+      title: "Đăng nhập thành công",
+      //text: "Đăng nhập thành công",
+      showConfirmButton: false,
+      icon: "success",
+      timer: 2000,
+    });
+  };
+
   const handleLogin = async (value) => {
     try {
       const params = {
-        user_name: value.username,
+        phone: value.phone,
         password: value.password,
       };
       const response = await userAPI.loginByUserName(params);
@@ -21,7 +36,7 @@ function Login({ socket }) {
       const action = setAccount(response.data);
 
       dispatch(action);
-
+      showAlert();
       navigate("/home");
     } catch (error) {
       console.log("Failed to call API login " + error);
@@ -60,18 +75,18 @@ function Login({ socket }) {
           )} */}
           <Form.Item>
             <Form.Item
-              name="username"
+              name="phone"
               rules={[
                 {
                   required: true,
-                  message: "Tên tài khoản không được để trống",
+                  message: "Số điện thoại không được để trống",
                 },
               ]}
               noStyle
             >
               <Input
                 prefix={<UserOutlined className="site-form-item-icon" />}
-                placeholder="Tên đăng nhập"
+                placeholder="Số điện thoại"
                 type="text"
               />
             </Form.Item>

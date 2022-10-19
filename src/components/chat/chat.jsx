@@ -26,10 +26,6 @@ function Chat({ socket }) {
   const ngay_trong_tuan = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
   const bottomRef = useRef(null);
 
-  //---- hàm kết nối với socket ----//
-  useEffect(() => {
-    socket.emit("addUser", { senderId: account._id });
-  }, []);
   //---- hàm lấy toàn bộ tin nhắn khi có sự thay dổi người nhận tin nhắn ----//
   useEffect(() => {
     getAllMess(chatAcount.conversation_id);

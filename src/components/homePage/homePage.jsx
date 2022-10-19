@@ -11,9 +11,12 @@ import { setChatAccount } from "../../slide/chatSlide";
 import { createConversations } from "../../slide/conversationSlide";
 import ListFriend from "../listFriend/listFriend";
 import {
+  addUser,
   closeModelAddFriend,
   showModelAddFriend,
 } from "../../slide/modalAddFriendSlide";
+import userAPI from "../../api/userAPI";
+import { async } from "@firebase/util";
 
 const socket = io(process.env.REACT_APP_SOCKET_URL);
 
@@ -21,16 +24,60 @@ function HomePage() {
   const account = useSelector((state) => state.account.account);
   const modelLogout = useSelector((state) => state.modalLogout.openModal);
   const modelAddFriend = useSelector((state) => state.modelAddFriend.openModal);
+  const modelAddFriend_user = useSelector(
+    (state) => state.modelAddFriend.user.receiver_id
+  );
+
+  const [userGetById, setUserGetById] = useState("");
   const formRef = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleOk_modelAddFriend = (value) => {
-    console.log(value);
+  //---- hàm kết nối với socket ----//
+  useEffect(() => {
+    socket.emit("addUser", { senderId: account._id });
+  }, []);
+
+  useEffect(() => {
+    getUserById(modelAddFriend_user);
+  }, [modelAddFriend_user]);
+
+  // useEffect(() => {
+  //   console.log(userGetById);
+  // }, [userGetById]);
+
+  const getUserById = async (id) => {
+    const params = { _id: id };
+
+    try {
+      const response = await userAPI.getUserbyId(params);
+      setUserGetById(response);
+    } catch (error) {
+      console.log("Fail when axios API get user by ID: " + error);
+    }
+  };
+
+  const sendRequestAddFriend = async (user_id, receiver_id) => {
+    const params = {
+      user_id: receiver_id,
+      receiver_id: user_id,
+    };
+    try {
+      const response = await userAPI.sendFriendRequest(params);
+      console.log(response);
+    } catch (error) {
+      console.log("Fail when call API sen request add friend: " + error);
+    }
+  };
+
+  const handleOk_modelAddFriend = () => {
+    sendRequestAddFriend(account._id, modelAddFriend_user);
     dispatch(closeModelAddFriend());
+    dispatch(addUser({ receiver_id: "" }));
   };
   const handleCancel_modelAddFriend = () => {
     dispatch(closeModelAddFriend());
+    dispatch(addUser({ receiver_id: "" }));
   };
   const handleOk = () => {
     console.log("ok");
@@ -96,38 +143,38 @@ function HomePage() {
       </Modal>
 
       <Modal
-        title="Thêm bạn bè"
+        title="Gửi yêu cầu trò chuyện"
         open={modelAddFriend}
-        // onOk={handleOk_modelAddFriend}
-        // onCancel={handleCancel_modelAddFriend}
+        //onOk={handleOk_modelAddFriend}
+        onCancel={handleCancel_modelAddFriend}
         className="modal-addfriend"
         footer={null}
       >
-        <Form
-          //onSubmit={(e) => console.log(e)}
-          onFinish={(value) => handleOk_modelAddFriend(value)}
-          name="search-form"
-          method="post"
-        >
-          <Form.Item required tooltip="không được để trống" name="soDienThoai">
-            <Input placeholder="Số điện thoại" ref={formRef} />
-          </Form.Item>
-          <Form.Item className="modal-addfriend-footer">
-            <Button
-              onClick={handleCancel_modelAddFriend}
-              className="modal-addfriend-footer-btn"
-            >
-              Hủy
-            </Button>
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="modal-addfriend-footer-btn"
-            >
-              Tìm kiếm
-            </Button>
-          </Form.Item>
-        </Form>
+        <div className="info-user">
+          <div className="info-user-img">
+            <img
+              src={require("../../assets/images/user-icon_03.png")}
+              alt="avatar"
+            />
+          </div>
+          <div className="info-user-name">{userGetById.user_name}</div>
+          {/* <div className="info-user-date">{userGetById.birth_day}</div> */}
+        </div>
+        <div className="modal-addfriend-footer">
+          <Button
+            onClick={handleCancel_modelAddFriend}
+            className="modal-addfriend-footer-btn"
+          >
+            Hủy
+          </Button>
+          <Button
+            type="primary"
+            onClick={handleOk_modelAddFriend}
+            className="modal-addfriend-footer-btn"
+          >
+            Gửi yêu cầu
+          </Button>
+        </div>
       </Modal>
     </div>
   );
