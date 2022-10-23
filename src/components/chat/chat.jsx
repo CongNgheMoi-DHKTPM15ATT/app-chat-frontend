@@ -13,6 +13,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ChatItem from "../chatItem/chatItem";
 import messageAPI from "../../api/messageAPI";
+import { useNavigate } from "react-router-dom";
+import { setVideoCallAccount } from "../../slide/videoCallSlide";
 
 function Chat({ socket }) {
   const account = useSelector((state) => state.account.account);
@@ -24,6 +26,8 @@ function Chat({ socket }) {
   const [pendingMess, setPendingMess] = useState("");
   const content = useRef("");
   const ngay_trong_tuan = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const bottomRef = useRef(null);
 
   //---- hàm lấy toàn bộ tin nhắn khi có sự thay dổi người nhận tin nhắn ----//
@@ -178,6 +182,21 @@ function Chat({ socket }) {
     if (_text.trim() === "") setValue("");
   };
 
+  const handleVideoCall = () => {
+    const y = window.top.outerHeight / 2 + window.top.screenY - 500 / 1.5;
+    const x = window.top.outerWidth / 2 + window.top.screenX - 900 / 2;
+    const action = setVideoCallAccount({
+      senderId: _id,
+      receiverId: chatAcount.receiver_id,
+      sender_name: account.user_name,
+      receiver_name: chatAcount.receiver_nick_name,
+      type: "sender",
+    });
+    dispatch(action);
+
+    window.open("/video-call", "", `width=900,height=500,top=${y},left=${x}`);
+  };
+
   const openCloseRightTab = () => {
     setRightTab(!rightTab);
   };
@@ -215,7 +234,10 @@ function Chat({ socket }) {
             </div>
             <div className="chat-header-toolbar">
               <PhoneTwoTone className="chat-header-toolbar-icon" />
-              <VideoCameraTwoTone className="chat-header-toolbar-icon" />
+              <VideoCameraTwoTone
+                className="chat-header-toolbar-icon"
+                onClick={handleVideoCall}
+              />
               {rightTab ? (
                 <MenuUnfoldOutlined
                   className="chat-header-toolbar-icon"

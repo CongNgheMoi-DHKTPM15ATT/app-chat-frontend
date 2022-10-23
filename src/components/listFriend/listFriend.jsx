@@ -11,8 +11,10 @@ function ListFriend() {
   const [listRender, setListRender] = useState([]);
 
   useEffect(() => {
-    console.log(chooseTab);
-    if (chooseTab === 1) handleGetListPending("pending");
+    if (chooseTab === 2) handleGetListPending("pending");
+    else if (chooseTab === 0) handleGetListPending("friended");
+    else if (chooseTab === 1) handleGetListPending("accepting");
+    else if (chooseTab === 3) handleGetListPending("block");
   }, [chooseTab]);
 
   const handleGetListPending = async (status) => {
@@ -31,8 +33,8 @@ function ListFriend() {
 
   const handleConfirmRequest = async (receiver_id) => {
     const params = {
-      user_id: receiver_id,
-      receiver_id: account._id,
+      user_id: account._id,
+      receiver_id: receiver_id,
       is_accept: true,
     };
     console.log(params);
@@ -71,51 +73,43 @@ function ListFriend() {
   };
 
   function renderListFriend() {
-    return <></>;
-  }
-
-  function renderListPendingFriend() {
     var list = [];
-
     listRender.map((user, index) => {
-      list.push(<UserCard user={user} key={index}></UserCard>);
+      list.push(
+        <UserCard_Friended user={user} key={index}></UserCard_Friended>
+      );
     });
 
     return list;
   }
 
-  function renderListUnFriend() {
-    return <></>;
+  function renderListAcceptingFriend() {
+    var list = [];
+    listRender.map((user, index) => {
+      list.push(
+        <UserCard_Accepting user={user} key={index}></UserCard_Accepting>
+      );
+    });
+
+    return list;
   }
 
-  function UserCard(props) {
-    return (
-      <div className="user-card">
-        <div className="user-card-img">
-          <img
-            src={require("../../assets/images/add-friend-02.jpg")}
-            alt="avatar"
-          />
-        </div>
-        <div className="user-card-center">
-          <div className="user-card-center-name">
-            <p>{props.user.user_name}</p>
-          </div>
-          <div className="user-card-center-name">
-            {/* <p>Nguyễn Thanh Thoảng</p> */}
-          </div>
-        </div>
-        <div className="user-card-button">
-          <Button
-            type="primary"
-            onClick={() => handleConfirmRequest(props.user._id)}
-          >
-            Đồng ý
-          </Button>
-          <Button type="danger">Từ Chối</Button>
-        </div>
-      </div>
-    );
+  function renderListPendingFriend() {
+    var list = [];
+    listRender.map((user, index) => {
+      list.push(<UserCard_Pending user={user} key={index}></UserCard_Pending>);
+    });
+
+    return list;
+  }
+
+  function renderListBlock() {
+    var list = [];
+    listRender.map((user, index) => {
+      list.push(<UserCard_Block user={user} key={index}></UserCard_Block>);
+    });
+
+    return list;
   }
 
   return (
@@ -151,7 +145,7 @@ function ListFriend() {
             }
             onClick={() => setChooseTab(1)}
           >
-            <p>Yêu cầu trò chuyện</p>
+            <p>Lời mời trò chuyện</p>
           </div>
           <div
             className={
@@ -159,6 +153,15 @@ function ListFriend() {
               (chooseTab === 2 ? " active" : "")
             }
             onClick={() => setChooseTab(2)}
+          >
+            <p>Đã gửi lời mời</p>
+          </div>
+          <div
+            className={
+              "listFriend-center-toolbar-icon " +
+              (chooseTab === 3 ? " active" : "")
+            }
+            onClick={() => setChooseTab(3)}
           >
             <p>Chặn người dùng</p>
           </div>
@@ -171,18 +174,144 @@ function ListFriend() {
                 ? "người để trò chuyện"
                 : chooseTab === 1
                 ? "yêu cầu trò chuyện"
+                : chooseTab === 2
+                ? "đã được bạn gửi lời mời"
                 : "người trong danh sách chặn"}
             </p>
           </div>
           {chooseTab === 0
             ? renderListFriend()
             : chooseTab === 1
+            ? renderListAcceptingFriend()
+            : chooseTab === 2
             ? renderListPendingFriend()
-            : renderListUnFriend()}
+            : renderListBlock()}
         </div>
       </div>
     </div>
   );
+
+  function UserCard_Friended(props) {
+    return (
+      <div className="user-card">
+        <div className="user-card-img">
+          <img
+            src={require("../../assets/images/add-friend-02.jpg")}
+            alt="avatar"
+          />
+        </div>
+        <div className="user-card-center">
+          <div className="user-card-center-name">
+            <p>{props.user.user_name}</p>
+          </div>
+          <div className="user-card-center-name">
+            {/* <p>Nguyễn Thanh Thoảng</p> */}
+          </div>
+        </div>
+        <div className="user-card-button button-friend">
+          <Button
+            style={{
+              width: "100%",
+              marginBottom: "1%",
+            }}
+            type="primary"
+            onClick={() => handleConfirmRequest(props.user._id)}
+          >
+            Hủy trò chuyện
+          </Button>
+          <Button
+            style={{
+              width: "100%",
+            }}
+            type="danger"
+          >
+            Chặn
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  function UserCard_Accepting(props) {
+    return (
+      <div className="user-card">
+        <div className="user-card-img">
+          <img
+            src={require("../../assets/images/add-friend-02.jpg")}
+            alt="avatar"
+          />
+        </div>
+        <div className="user-card-center">
+          <div className="user-card-center-name">
+            <p>{props.user.user_name}</p>
+          </div>
+          <div className="user-card-center-name">
+            {/* <p>Nguyễn Thanh Thoảng</p> */}
+          </div>
+        </div>
+
+        <div className="user-card-button">
+          <Button
+            type="primary"
+            onClick={() => handleConfirmRequest(props.user._id)}
+          >
+            Đồng ý
+          </Button>
+          <Button type="danger">Từ Chối</Button>
+        </div>
+      </div>
+    );
+  }
+
+  function UserCard_Pending(props) {
+    return (
+      <div className="user-card">
+        <div className="user-card-img">
+          <img
+            src={require("../../assets/images/add-friend-02.jpg")}
+            alt="avatar"
+          />
+        </div>
+        <div className="user-card-center">
+          <div className="user-card-center-name">
+            <p>{props.user.user_name}</p>
+          </div>
+          <div className="user-card-center-name">
+            {/* <p>Nguyễn Thanh Thoảng</p> */}
+          </div>
+        </div>
+
+        <div className="user-card-button">
+          <Button type="danger">Thu hồi</Button>
+        </div>
+      </div>
+    );
+  }
+
+  function UserCard_Block(props) {
+    return (
+      <div className="user-card">
+        <div className="user-card-img">
+          <img
+            src={require("../../assets/images/add-friend-02.jpg")}
+            alt="avatar"
+          />
+        </div>
+        <div className="user-card-center">
+          <div className="user-card-center-name">
+            <p>{props.user.user_name}</p>
+          </div>
+          <div className="user-card-center-name">
+            {/* <p>Nguyễn Thanh Thoảng</p> */}
+          </div>
+        </div>
+
+        <div className="user-card-button">
+          <Button type="danger">Bỏ chặn</Button>
+        </div>
+      </div>
+    );
+  }
 }
 
 export default ListFriend;

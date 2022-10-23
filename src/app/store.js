@@ -5,6 +5,8 @@ import chatReducer from "../slide/chatSlide";
 import conversationReducer from "../slide/conversationSlide";
 import modalLogoutReducer from "../slide/modalSlide";
 import modelAddFriendReducer from "../slide/modalAddFriendSlide";
+import modelAcountUserReducer from "../slide/modelAcountSlide";
+import videoCallReducer from "../slide/videoCallSlide";
 import storage from "redux-persist/lib/storage";
 import { persistReducer } from "redux-persist";
 import thunk from "redux-thunk";
@@ -15,6 +17,8 @@ const rootReducer = combineReducers({
   conversation: conversationReducer,
   modalLogout: modalLogoutReducer,
   modelAddFriend: modelAddFriendReducer,
+  modelAcountUser: modelAcountUserReducer,
+  videoCall: videoCallReducer,
 });
 
 const persistConfig = {

@@ -3,7 +3,6 @@ import { Button, Col, Form, Input, Modal, Row } from "antd";
 import { Link, useNavigate, Routes, Route, Navigate } from "react-router-dom";
 import SideBar from "../sideBar/sidebar";
 import Chat from "../chat/chat";
-import { io } from "socket.io-client";
 import { useSelector, useDispatch } from "react-redux";
 import { closeModalLogout } from "../../slide/modalSlide";
 import { setAccount } from "../../slide/userSlide";
@@ -16,27 +15,34 @@ import {
   showModelAddFriend,
 } from "../../slide/modalAddFriendSlide";
 import userAPI from "../../api/userAPI";
-import { async } from "@firebase/util";
+import { closeModelAcountUser } from "../../slide/modelAcountSlide";
+import { setVideoCallAccount } from "../../slide/videoCallSlide";
 
-const socket = io(process.env.REACT_APP_SOCKET_URL);
-
-function HomePage() {
+function HomePage({ socket }) {
+  const [receivingCall, setReceivingCall] = useState(false);
   const account = useSelector((state) => state.account.account);
+  const modelAcountUser = useSelector(
+    (state) => state.modelAcountUser.openModal
+  );
   const modelLogout = useSelector((state) => state.modalLogout.openModal);
   const modelAddFriend = useSelector((state) => state.modelAddFriend.openModal);
   const modelAddFriend_user = useSelector(
     (state) => state.modelAddFriend.user.receiver_id
   );
-
   const [userGetById, setUserGetById] = useState("");
+  const [videoData, setVideoData] = useState(null);
+  const [videoName, setVideoName] = useState("");
   const formRef = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  //---- hàm kết nối với socket ----//
   useEffect(() => {
-    socket.emit("addUser", { senderId: account._id });
-  }, []);
+    socket.on("request_video_call", (data) => {
+      setReceivingCall(true);
+      setVideoName(data.sender_name);
+      setVideoData(data);
+    });
+  }, [socket]);
 
   useEffect(() => {
     getUserById(modelAddFriend_user);
@@ -59,8 +65,8 @@ function HomePage() {
 
   const sendRequestAddFriend = async (user_id, receiver_id) => {
     const params = {
-      user_id: receiver_id,
-      receiver_id: user_id,
+      user_id: user_id,
+      receiver_id: receiver_id,
     };
     try {
       const response = await userAPI.sendFriendRequest(params);
@@ -70,6 +76,13 @@ function HomePage() {
     }
   };
 
+  const handleCancel_Call = () => {
+    setReceivingCall(false);
+  };
+
+  const handleCancel_modelAcountUser = () => {
+    dispatch(closeModelAcountUser());
+  };
   const handleOk_modelAddFriend = () => {
     sendRequestAddFriend(account._id, modelAddFriend_user);
     dispatch(closeModelAddFriend());
@@ -174,6 +187,74 @@ function HomePage() {
           >
             Gửi yêu cầu
           </Button>
+        </div>
+      </Modal>
+
+      <Modal
+        title="Thông tin cá nhân"
+        open={modelAcountUser}
+        //onOk={handleOk_modelAddFriend}
+        onCancel={handleCancel_modelAcountUser}
+        className="modal-modelAcountUser"
+        footer={null}
+      >
+        <div className="info-user">
+          <div className="info-user-img">
+            <img
+              src={require("../../assets/images/user-icon_03.png")}
+              alt="avatar"
+            />
+          </div>
+          <div className="info-user-name">{account.user_name}</div>
+          {/* <div className="info-user-date">{userGetById.birth_day}</div> */}
+        </div>
+      </Modal>
+
+      <Modal
+        title="Cuộc gọi hình ảnh"
+        open={receivingCall}
+        onCancel={handleCancel_Call}
+        footer={null}
+        className="video-call"
+        style={{ width: "200px" }}
+      >
+        <div>
+          <div className="caller">
+            <p>
+              <center>Cuộc gọi</center>
+            </p>
+            <h5>
+              <center>
+                <b>{videoName}</b>
+              </center>
+            </h5>
+            <Button
+              type="primary"
+              onClick={() => {
+                const action = setVideoCallAccount({
+                  senderId: account._id,
+                  sender_name: account.user_name,
+                  receiverId: videoData.senderId,
+                  receiver_name: videoData.sender_name,
+                  type: "receiver",
+                });
+                dispatch(action);
+                setReceivingCall(false);
+                const y =
+                  window.top.outerHeight / 2 + window.top.screenY - 500 / 1.5;
+                const x =
+                  window.top.outerWidth / 2 + window.top.screenX - 900 / 2;
+
+                window.open(
+                  "/video-call",
+                  "",
+                  `width=900,height=500,top=${y},left=${x}`
+                );
+              }}
+            >
+              Nhấc máy
+            </Button>
+          </div>
         </div>
       </Modal>
     </div>

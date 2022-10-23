@@ -23,6 +23,7 @@ import { showModalLogout } from "../../slide/modalSlide";
 import { Link } from "react-router-dom";
 import { addUser, showModelAddFriend } from "../../slide/modalAddFriendSlide";
 import userAPI from "../../api/userAPI";
+import { showModelAcountUser } from "../../slide/modelAcountSlide";
 
 function SideBar({ socket }) {
   const account = useSelector((state) => state.account.account);
@@ -37,13 +38,16 @@ function SideBar({ socket }) {
   const [search, setSearch] = useState(true);
   const [txt_search, setTxt_Search] = useState("");
   const dispatch = useDispatch();
+  const href_now = window.location.pathname.split("/")[2];
+
+  // useEffect(() => {
+  //   console.log(chooseItem);
+  // }, [chooseItem]);
 
   useEffect(() => {
-    handleGetConversations(account._id);
-    console.log("hihi");
-  }, [chooseItem]);
-
-  useEffect(() => {
+    if (href_now === "list-friend") {
+      setChooseItem("btn-friend");
+    } else if (href_now === "message") setChooseItem("btn-message");
     handleGetConversations(account._id);
   }, []);
 
@@ -51,13 +55,13 @@ function SideBar({ socket }) {
     setChooseConver(chatAcount.conversation_id);
   }, [chatAcount]);
 
-  useEffect(() => {
-    console.log(chooseFriend);
-  }, [chooseFriend]);
+  // useEffect(() => {
+  //   console.log(chooseFriend);
+  // }, [chooseFriend]);
 
-  useEffect(() => {
-    console.log(chooseConver);
-  }, [chooseConver]);
+  // useEffect(() => {
+  //   console.log(chooseConver);
+  // }, [chooseConver]);
 
   useEffect(() => {
     if (list_friend.length > 0) setSearch(false);
@@ -171,16 +175,7 @@ function SideBar({ socket }) {
         </div>
         <div
           className={"tag-Friend " + (chooseFriend == 2 ? "active" : "")}
-          onClick={() => {
-            setChooseFriend(2);
-          }}
-        >
-          <UserAddOutlined />
-          <span>Thêm bạn bè</span>
-        </div>
-        <div
-          className={"tag-Friend " + (chooseFriend == 3 ? "active" : "")}
-          onClick={() => setChooseFriend(3)}
+          onClick={() => setChooseFriend(2)}
         >
           <UsergroupAddOutlined />
           <span>Tạo nhóm</span>
@@ -226,7 +221,7 @@ function SideBar({ socket }) {
     },
   ];
   const onClicksideBar = (key) => {
-    setChooseItem(key);
+    if (key !== "btn-logout" && key !== "btn-user") setChooseItem(key);
     if (key === "btn-logout") {
       dispatch(showModalLogout());
     } else if (key === "btn-message") {
@@ -234,9 +229,10 @@ function SideBar({ socket }) {
       setTxt_Search("");
       changeAcountbyChooseMessage(chooseMessage);
     } else if (key === "btn-user") {
-      setSearch(true);
-      setTxt_Search("");
-      changeAcountbyChooseMessage(chooseMessage);
+      dispatch(showModelAcountUser());
+      // setSearch(true);
+      // setTxt_Search("");
+      // changeAcountbyChooseMessage(chooseMessage);
     } else if (key === "btn-notifi") {
       setSearch(true);
       setTxt_Search("");
@@ -341,6 +337,7 @@ function SideBar({ socket }) {
         </p>
       );
     }
+    console.log(list_friend);
     list_friend.map((user, index) => {
       render_list_friend.push(
         <UserItem key={index} id={index} user={user}></UserItem>
@@ -353,7 +350,9 @@ function SideBar({ socket }) {
     <Row className="sidebar">
       <Col span={4}>
         <Menu
-          defaultSelectedKeys="btn-message"
+          defaultSelectedKeys={
+            href_now === "message" ? "btn-message" : "btn-friend"
+          }
           mode="inline"
           inlineCollapsed={true}
           items={items}
@@ -391,7 +390,7 @@ function SideBar({ socket }) {
           </div>
           {search === false ? (
             <div className="sidebar-content-center">{rederListUser()}</div>
-          ) : chooseItem === "btn-message" || chooseItem === "btn-logout" ? (
+          ) : chooseItem === "btn-message" ? (
             <div className="sidebar-content-center">{renderListMessage()}</div>
           ) : chooseItem === "btn-friend" ? (
             renderTabFriend()
