@@ -184,13 +184,12 @@ function SideBar({ socket }) {
     );
   }
 
-  const items = [
-    {
+  const items = [{
       label: `${account.user_name}`,
       key: "btn-user",
       icon: (
         <img
-          src={require("../../assets/images/user-icon_03.png")}
+          src={account.avatar}
           alt="avatar"
         />
       ),
@@ -210,14 +209,12 @@ function SideBar({ socket }) {
       label: "Cài đặt",
       key: "btn-setting",
       icon: <SettingTwoTone />,
-      children: [
-        {
-          label: "Đăng xuất",
-          key: "btn-logout",
-          icon: <LogoutOutlined />,
-          // onClick: { showModal },
-        },
-      ],
+      children: [{
+        label: "Đăng xuất",
+        key: "btn-logout",
+        icon: <LogoutOutlined />,
+        // onClick: { showModal },
+      }, ],
     },
   ];
   const onClicksideBar = (key) => {
@@ -255,6 +252,7 @@ function SideBar({ socket }) {
             conversation_id: conversations[props.id]._id,
             user_nick_name: conversations[props.id].nick_name,
             receiver_nick_name: conversations[props.id].receiver.nick_name,
+            avatar: conversations[props.id].receiver.avatar
           });
           dispatch(action);
         }}
@@ -262,7 +260,7 @@ function SideBar({ socket }) {
       >
         <div className="messageItem-left">
           <img
-            src={require("../../assets/images/user-icon_03.png")}
+            src={conversations[props.id].receiver.avatar}
             alt="avatar"
           />
         </div>
@@ -312,7 +310,7 @@ function SideBar({ socket }) {
       >
         <div className="messageItem-left">
           <img
-            src={require("../../assets/images/user-icon_03.png")}
+            src={props.user.avatar}
             alt="avatar"
           />
         </div>

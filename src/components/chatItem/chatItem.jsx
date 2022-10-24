@@ -5,7 +5,7 @@ function ChatItem(prop) {
     new Date(prop.createdAt).getHours() +
     ":" +
     new Date(prop.createdAt).getMinutes();
-
+  console.log(prop)
   return (
     // <div className="chat-item">
     //   {prop.senderId == prop.userID ? (
@@ -34,7 +34,7 @@ function ChatItem(prop) {
         <div span={2} className="chat-item-img">
           {prop.loadImg ? (
             <img
-              src={require("../../assets/images/user-icon_03.png")}
+              src={prop.avatar}
               alt="avatar"
             />
           ) : (

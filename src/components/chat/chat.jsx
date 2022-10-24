@@ -54,6 +54,7 @@ function Chat({ socket }) {
   //---- hàm nhận tin nhắn từ socket gửi đến ----//
   useEffect(() => {
     socket.on("getMessage", (data) => {
+      console.log("hahaha")
       const mess = createMess(
         data.text,
         "text",
@@ -75,13 +76,25 @@ function Chat({ socket }) {
         text: message.content,
       };
       const response = await messageAPI.sendMessage(params);
-      socket.emit("send", {
+      socket.emit("sendToSelf", {
         senderId: _id,
         receiverId: chatAcount.receiver_id,
         nick_name: chatAcount.user_nick_name,
         text: message.content,
       });
-      _setListMessage((_listMessage) => [message, ..._listMessage]);
+
+      socket.on("getMessageBySelf", (data) => {
+        console.log("hahahahah")
+        const mess = createMess(
+          data.text,
+          "text",
+          false,
+          data.senderId,
+          data.nick_name
+        );
+        setPendingMess(mess);
+      });
+      //  _setListMessage((_listMessage) => [message, ..._listMessage]);
     } catch (error) {
       console.log("Failed to call API send message" + error);
     }
@@ -108,6 +121,7 @@ function Chat({ socket }) {
         conversation_id: conver_id,
       };
       const response = await messageAPI.getAllMessage(params);
+      console.log(response);
       _setListMessage(response.messages);
     } catch (error) {
       console.log("Failed to call API get all message " + error);
@@ -148,6 +162,7 @@ function Chat({ socket }) {
             loadImg={check}
             createdAt={mess.createdAt}
             userID={_id}
+            avatar={mess.sender.avatar}
           />
         );
         loadImg = mess.sender.user_id;
@@ -172,6 +187,7 @@ function Chat({ socket }) {
             loadImg={check}
             createdAt={mess.createdAt}
             userID={_id}
+            avatar={mess.sender.avatar}
           />
         );
       }
@@ -249,7 +265,7 @@ function Chat({ socket }) {
             <div className="chat-header-info">
               <div className="chat-header-info-img">
                 <img
-                  src={require("../../assets/images/user-icon_03.png")}
+                  src={chatAcount.avatar}
                   alt="avatar"
                 />
               </div>
