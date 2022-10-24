@@ -319,9 +319,13 @@ function SideBar({ socket }) {
         <div className="messageItem-center">
           <div className="message-name">{props.user.nick_name}</div>
           <div className="message-status">
-            {props.user.conversation === null
-              ? "Chưa yêu cầu"
-              : "Đã trò chuyện"}
+            {props.user.status === "FRIENDED"
+              ? "Đã trò chuyện"
+              : props.user.status === "PENDING"
+              ? "Đã gửi lời mời"
+              : props.user.status === "ACCEPTING"
+              ? "Chưa chấp nhận"
+              : "Chưa yêu cầu"}
           </div>
         </div>
       </div>
@@ -339,9 +343,11 @@ function SideBar({ socket }) {
     }
     console.log(list_friend);
     list_friend.map((user, index) => {
-      render_list_friend.push(
-        <UserItem key={index} id={index} user={user}></UserItem>
-      );
+      if (user.status !== "BLOCK") {
+        render_list_friend.push(
+          <UserItem key={index} id={index} user={user}></UserItem>
+        );
+      }
     });
     return render_list_friend;
   }

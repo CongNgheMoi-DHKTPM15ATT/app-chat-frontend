@@ -1,4 +1,4 @@
-import { Button, Col, Form, Row } from "antd";
+import { Button, Col, Form, Input, Row, Upload } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import InputEmoji from "react-input-emoji";
 import {
@@ -8,6 +8,7 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   SmileTwoTone,
+  FileAddFilled,
 } from "@ant-design/icons";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,6 +16,7 @@ import ChatItem from "../chatItem/chatItem";
 import messageAPI from "../../api/messageAPI";
 import { useNavigate } from "react-router-dom";
 import { setVideoCallAccount } from "../../slide/videoCallSlide";
+import S3API from "../../api/s3API";
 
 function Chat({ socket }) {
   const account = useSelector((state) => state.account.account);
@@ -26,6 +28,8 @@ function Chat({ socket }) {
   const [pendingMess, setPendingMess] = useState("");
   const content = useRef("");
   const ngay_trong_tuan = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+  const [__ListFileUpload, __SetListFileUpLoad] = useState([]);
+  const input_file = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const bottomRef = useRef(null);
@@ -200,6 +204,7 @@ function Chat({ socket }) {
   const openCloseRightTab = () => {
     setRightTab(!rightTab);
   };
+
   //---- hàm gửi tin nhắn ----//
   const handleEmitMessage = () => {
     const _text = value;
@@ -213,6 +218,26 @@ function Chat({ socket }) {
         chatAcount.user_nick_name
       );
       handleSendMessage(mess);
+    }
+  };
+
+  const PostFileToS3 = async (img) => {
+    try {
+      const params = {
+        img: img,
+      };
+      const response = await S3API.sendFile(params);
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleUpLoadFile = (e) => {
+    const listFile_size = e.target.files.length;
+    for (var i = 0; i < listFile_size; i++) {
+      console.log(e.target.files[i].name);
+      PostFileToS3(e.target.files[i].name);
     }
   };
 
@@ -255,7 +280,6 @@ function Chat({ socket }) {
             <div className="chat-center-message">{rederListMess()}</div>
           </div>
           <div className="chat-footer">
-            <div className="chat-footer-toolbar"></div>
             <Form className="chat-footer-input">
               <Form.Item className="chat-footer-input-form">
                 <InputEmoji
@@ -266,6 +290,30 @@ function Chat({ socket }) {
                   onEnter={handleEmitMessage}
                   placeholder="Nhập tin nhắn...."
                 />
+              </Form.Item>
+              <Form.Item className="chat-footer-input-file">
+                <label className="custom-file-upload">
+                  <input
+                    type="file"
+                    name="file"
+                    onChange={handleUpLoadFile}
+                    multiple
+                    style={{ display: "none" }}
+                  />
+                  <FileAddFilled className="toolbar-icon" />
+                </label>
+                {/* <input
+                  type="file"
+                  name="file"
+                  onChange={handleUpLoadFile}
+                  multiple
+                  className="custom-file-input"
+                  style={{ visibility: "hidden" }}
+                /> */}
+                {/* <FileAddFilled
+                  className="toolbar-icon"
+                  onClick={handleClickChooseFile}
+                /> */}
               </Form.Item>
               <Form.Item className="chat-footer-input-action">
                 {/* <Button htmlType="submit" className="action-icon"><SendOutlined /></Button> */}

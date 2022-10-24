@@ -17,8 +17,11 @@ import {
 import userAPI from "../../api/userAPI";
 import { closeModelAcountUser } from "../../slide/modelAcountSlide";
 import { setVideoCallAccount } from "../../slide/videoCallSlide";
+import { io } from "socket.io-client";
 
-function HomePage({ socket }) {
+const socket = io(process.env.REACT_APP_SOCKET_URL);
+
+function HomePage() {
   const [receivingCall, setReceivingCall] = useState(false);
   const account = useSelector((state) => state.account.account);
   const modelAcountUser = useSelector(
@@ -36,6 +39,11 @@ function HomePage({ socket }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  //---- hàm kết nối với socket ----//
+  useEffect(() => {
+    socket.emit("addUser", { senderId: account._id });
+  }, []);
+
   useEffect(() => {
     socket.on("request_video_call", (data) => {
       setReceivingCall(true);
@@ -46,6 +54,7 @@ function HomePage({ socket }) {
 
   useEffect(() => {
     getUserById(modelAddFriend_user);
+    console.log(getUserById(modelAddFriend_user));
   }, [modelAddFriend_user]);
 
   // useEffect(() => {
@@ -156,7 +165,7 @@ function HomePage({ socket }) {
       </Modal>
 
       <Modal
-        title="Gửi yêu cầu trò chuyện"
+        title="Thông tin người dùng"
         open={modelAddFriend}
         //onOk={handleOk_modelAddFriend}
         onCancel={handleCancel_modelAddFriend}
@@ -173,6 +182,7 @@ function HomePage({ socket }) {
           <div className="info-user-name">{userGetById.user_name}</div>
           {/* <div className="info-user-date">{userGetById.birth_day}</div> */}
         </div>
+
         <div className="modal-addfriend-footer">
           <Button
             onClick={handleCancel_modelAddFriend}

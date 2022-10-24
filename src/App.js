@@ -5,20 +5,12 @@ import Loading from "./basicComponent/loading";
 import { Button } from "antd";
 import { useSelector } from "react-redux";
 import VideoCall from "./components/videoCall/videoCall";
-import { io } from "socket.io-client";
 
-const socket = io(process.env.REACT_APP_SOCKET_URL);
 const Register = lazy(() => import("./components/register/register"));
 const Login = lazy(() => import("./components/login/login"));
 
 function App() {
   const account = useSelector((state) => state.account.account);
-
-  //---- hàm kết nối với socket ----//
-  useEffect(() => {
-    socket.emit("addUser", { senderId: account._id });
-  }, []);
-
   return (
     <div className="App">
       <Suspense fallback={<Loading />}>
@@ -54,7 +46,7 @@ function App() {
             path="/home/*"
             element={
               <PrivateRoute>
-                <HomePage socket={socket} />
+                <HomePage />
               </PrivateRoute>
             }
           />
@@ -62,7 +54,7 @@ function App() {
             path="/video-call/*"
             element={
               <VideoCallRoute>
-                <VideoCall socket={socket} />
+                <VideoCall />
               </VideoCallRoute>
             }
           />
@@ -104,13 +96,14 @@ function PrivateRoute({ children }) {
 function VideoCallRoute({ children }) {
   const auth = useAuth();
   const videoCall_account = useSelector((state) => state.videoCall.account);
-  return auth ? (
-    videoCall_account.receiver_id === "" ? (
-      <Navigate to="/home" />
-    ) : (
-      children
-    )
-  ) : (
-    <Navigate to="/login" />
-  );
+  return children;
+  // auth ? (
+  // videoCall_account.receiver_id === "" ? (
+  //   <Navigate to="/home" />
+  // ) : (
+  // children
+  //   )
+  // ) : (
+  //   <Navigate to="/login" />
+  // );
 }
