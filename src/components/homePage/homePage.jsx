@@ -9,6 +9,7 @@ import { setAccount } from "../../slide/userSlide";
 import { setChatAccount } from "../../slide/chatSlide";
 import { createConversations } from "../../slide/conversationSlide";
 import ListFriend from "../listFriend/listFriend";
+import { PhoneFilled } from "@ant-design/icons";
 import {
   addUser,
   closeModelAddFriend,
@@ -83,6 +84,22 @@ function HomePage() {
     } catch (error) {
       console.log("Fail when call API sen request add friend: " + error);
     }
+  };
+
+  const handle_VideoCall = () => {
+    const action = setVideoCallAccount({
+      senderId: account._id,
+      sender_name: account.user_name,
+      receiverId: videoData.senderId,
+      receiver_name: videoData.sender_name,
+      type: "receiver",
+    });
+    dispatch(action);
+    setReceivingCall(false);
+    const y = window.top.outerHeight / 2 + window.top.screenY - 500 / 1.5;
+    const x = window.top.outerWidth / 2 + window.top.screenX - 900 / 2;
+
+    window.open("/video-call", "", `width=900,height=500,top=${y},left=${x}`);
   };
 
   const handleCancel_Call = () => {
@@ -221,49 +238,77 @@ function HomePage() {
       </Modal>
 
       <Modal
-        title="Cuộc gọi hình ảnh"
+        //title="Cuộc gọi hình ảnh"
         open={receivingCall}
-        onCancel={handleCancel_Call}
+        // open={true}
         footer={null}
+        header={null}
         className="video-call"
-        style={{ width: "200px" }}
+        width={400}
       >
         <div>
           <div className="caller">
-            <p>
-              <center>Cuộc gọi</center>
-            </p>
-            <h5>
-              <center>
-                <b>{videoName}</b>
-              </center>
-            </h5>
-            <Button
-              type="primary"
-              onClick={() => {
-                const action = setVideoCallAccount({
-                  senderId: account._id,
-                  sender_name: account.user_name,
-                  receiverId: videoData.senderId,
-                  receiver_name: videoData.sender_name,
-                  type: "receiver",
-                });
-                dispatch(action);
-                setReceivingCall(false);
-                const y =
-                  window.top.outerHeight / 2 + window.top.screenY - 500 / 1.5;
-                const x =
-                  window.top.outerWidth / 2 + window.top.screenX - 900 / 2;
-
-                window.open(
-                  "/video-call",
-                  "",
-                  `width=900,height=500,top=${y},left=${x}`
-                );
+            <p
+              style={{
+                textAlign: "center",
               }}
             >
-              Nhấc máy
-            </Button>
+              Cuộc gọi đến
+            </p>
+            <h5
+              style={{
+                textAlign: "center",
+              }}
+            >
+              {/* <b>{videoName}</b> */}
+              <b>Nguyễn Hải Nam</b>
+            </h5>
+            <div
+              style={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <img
+                src={require("../../assets/images/user-icon_03.png")}
+                alt="avatar"
+                style={{
+                  width: "50%",
+                }}
+              />
+            </div>
+            <div
+              className="video-call-toolbar"
+              style={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "40px",
+              }}
+            >
+              <Button
+                type="primary"
+                onClick={handleCancel_Call}
+                style={{
+                  backgroundColor: "red",
+                  marginRight: "20px",
+                }}
+              >
+                <PhoneFilled />
+              </Button>
+
+              <Button
+                type="primary"
+                onClick={handle_VideoCall}
+                style={{
+                  backgroundColor: "green",
+                  marginLeft: "20px",
+                }}
+              >
+                <PhoneFilled />
+              </Button>
+            </div>
           </div>
         </div>
       </Modal>

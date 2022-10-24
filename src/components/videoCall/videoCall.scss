@@ -35,29 +35,42 @@
     width: 100vw;
     height: 5vh;
     min-height: 70px;
-    opacity: 0;
+    opacity: 0.2;
     display: flex;
     flex-direction: row;
     justify-content: center;
     .icon {
-      width: 40px;
-      height: 40px;
-      background-color: beige;
-      margin: 5px 10px;
-      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      border-radius: 40%;
       font-size: 1.5em;
-      line-height: 2;
     }
     .icon-phone {
       color: white;
       background-color: red;
     }
-    .icon-phone-active {
-      color: white;
-      background-color: rgb(85, 202, 88);
-    }
   }
   .tool-bar:hover {
     opacity: 1;
+  }
+
+  .btn-call {
+    width: 100%;
+    height: 70px;
+    position: absolute;
+    z-index: 300;
+    bottom: 0;
+    button {
+      margin: 10px 0;
+      background-color: rgb(108, 248, 95);
+      color: white;
+      font-weight: 500;
+      //height: 50px;
+      border: 5px solid rgb(108, 248, 95);
+    }
+    button:hover {
+      box-shadow: 5px 5px 5px white;
+      border: 5px solid wheat;
+    }
   }
 }
