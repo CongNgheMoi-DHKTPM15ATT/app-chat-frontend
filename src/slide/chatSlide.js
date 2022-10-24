@@ -8,6 +8,7 @@ const chat = createSlice({
       user_nick_name: "",
       conversation_id: "",
       receiver_id: "",
+      avatar: "",
     },
   },
   reducers: {

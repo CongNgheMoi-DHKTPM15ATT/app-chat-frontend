@@ -32,7 +32,6 @@ function Login({ socket }) {
         password: value.password,
       };
       const response = await userAPI.loginByUserName(params);
-      console.log(response);
       const action = setAccount(response.data);
 
       dispatch(action);
