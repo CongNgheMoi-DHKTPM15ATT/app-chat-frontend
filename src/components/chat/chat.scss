@@ -103,9 +103,9 @@
         max-height: 60px;
       }
       &-file {
-        .custom-file-input::-webkit-file-upload-button {
-          visibility: hidden;
-        }
+        // .custom-file-input::-webkit-file-upload-button {
+        //   visibility: hidden;
+        // }
         max-height: 13vh;
         margin-bottom: 0;
         overflow: auto;

@@ -75,8 +75,14 @@
   }
 
   .video-call {
-    .ant-modal-close-x {
-      display: none !important;
+    .ant-modal-content {
+      width: 400px;
+    }
+    .video-call-toolbar {
+      width: 100%;
+      background-color: aqua;
+      display: flex;
+      justify-content: center;
     }
   }
 }
