@@ -25,7 +25,7 @@ function Chat({ socket }) {
   const [value, setValue] = useState("");
   const [rightTab, setRightTab] = useState(false);
   const [_listMessage, _setListMessage] = useState([]);
-  const [pendingMess, setPendingMess] = useState("");
+  const [pendingMess, setPendingMess] = useState(null);
   const content = useRef("");
   const ngay_trong_tuan = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
   const [__ListFileUpload, __SetListFileUpLoad] = useState([]);
@@ -40,16 +40,14 @@ function Chat({ socket }) {
   }, [chatAcount]);
 
   useEffect(() => {
-    if (pendingMess !== "") {
-      if (chatAcount.receiver_id === pendingMess.sender.user_id)
-        _setListMessage((_listMessage) => [pendingMess, ..._listMessage]);
+    if (pendingMess) {
+      if (
+        chatAcount.receiver_id === pendingMess.mess.sender.user_id ||
+        pendingMess.receiverId === chatAcount.receiver_id
+      )
+        _setListMessage((_listMessage) => [pendingMess.mess, ..._listMessage]);
     }
   }, [pendingMess]);
-
-  // useEffect(() => {
-  //   bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  //   console.log("find");
-  // }, [_listMessage]);
 
   //---- hàm nhận tin nhắn từ socket gửi đến ----//
   useEffect(() => {
@@ -59,13 +57,10 @@ function Chat({ socket }) {
         "text",
         false,
         data.senderId,
-        data.nick_name
+        data.nick_name,
+        data.avatar
       );
-      if (data.senderId === data.receiverId) {
-        _setListMessage((_listMessage) => [mess, ..._listMessage]);
-      } else {
-        setPendingMess(mess);
-      }
+      setPendingMess({ receiverId: data.receiverId, mess: mess });
     });
     // return () => socket.off("getMessage", addList);
   }, [socket]);
@@ -84,31 +79,29 @@ function Chat({ socket }) {
         receiverId: chatAcount.receiver_id,
         nick_name: chatAcount.user_nick_name,
         text: message.content,
+        avatar: message.sender.avatar,
       });
-
-      socket.emit("send", {
-        senderId: _id,
-        receiverId: _id,
-        nick_name: chatAcount.user_nick_name,
-        text: message.content,
-      });
+      // socket.emit("send", {
+      //   senderId: _id,
+      //   receiverId: _id,
+      //   nick_name: chatAcount.user_nick_name,
+      //   text: message.content,
+      //   avatar: message.avatar,
+      // });
       _setListMessage((_listMessage) => [message, ..._listMessage]);
     } catch (error) {
       console.log("Failed to call API send message" + error);
     }
   };
   //---- hàm tạo 1 đối tượng tin nhắn ----//
-  function createMess(content, content_type, deleted, user_id, name) {
+  function createMess(content, content_type, deleted, user_id, name, avatar) {
     const d = new Date();
     const mess = {
       content: content,
       content_type: content_type,
       deleted: deleted,
       createdAt: d,
-      sender: {
-        user_id: user_id,
-        nick_name: name,
-      },
+      sender: { avatar: avatar, user_id: user_id, nick_name: name },
     };
     return mess;
   }
@@ -195,10 +188,10 @@ function Chat({ socket }) {
     return _ListMess;
   };
 
-  const handleOneBlur = () => {
-    let _text = document.getElementById("mess-text").innerHTML;
-    if (_text.trim() === "") setValue("");
-  };
+  // const handleOneBlur = () => {
+  //   let _text = document.getElementById("mess-text").innerHTML;
+  //   if (_text.trim() === "") setValue("");
+  // };
 
   const handleVideoCall = () => {
     const y = window.top.outerHeight / 2 + window.top.screenY - 500 / 1.5;
@@ -229,7 +222,8 @@ function Chat({ socket }) {
         "text",
         false,
         _id,
-        chatAcount.user_nick_name
+        chatAcount.user_nick_name,
+        account.avatar
       );
       handleSendMessage(mess);
     }
