@@ -1,33 +1,39 @@
-.homepage {
-}
+.homepage {}
+
 .modal-modelAcountUser {
   max-width: 30vw !important;
+
   &-footer {
     // background-color: aqua !important;
     display: flex;
     flex-direction: row-reverse;
     margin: 24px;
     margin-bottom: 0;
+
     &-btn {
       margin-left: 10px;
     }
   }
+
   .info-user {
     width: 100%;
     // background-color: aqua;
     display: flex;
     flex-direction: column;
+
     &-img {
       width: 100%;
       background-color: beige;
       display: flex;
       justify-content: center;
+
       img {
         width: 15vh;
         border-radius: 50%;
         border: 3px solid white;
       }
     }
+
     &-name {
       padding-top: 12px;
       text-align: center;
@@ -37,40 +43,59 @@
     }
   }
 }
+
 .modal-addfriend {
   max-width: 30vw !important;
+
   &-footer {
     // background-color: aqua !important;
     display: flex;
     flex-direction: row-reverse;
     margin: 24px;
     margin-bottom: 0;
+
     &-btn {
       margin-left: 10px;
     }
   }
+
   .info-user {
     width: 100%;
     // background-color: aqua;
     display: flex;
     flex-direction: column;
+
     &-img {
       width: 100%;
       background-color: beige;
       display: flex;
       justify-content: center;
+
       img {
         width: 15vh;
         border-radius: 50%;
         border: 3px solid white;
       }
     }
-    &-name {
-      padding-top: 12px;
-      text-align: center;
-      font-size: 2em;
-      font-weight: 500;
-      font-family: "Courier New", Courier, monospace;
+
+    // &-name {
+    //   padding-top: 12px;
+    //   text-align: center;
+    //   font-size: 2em;
+    //   font-weight: 500;
+    //   font-family: "Courier New", Courier, monospace;
+    // }
+
+    // &-label {
+    //   padding-top: 12px;
+    //   text-align: center;
+    //   font-size: 2em;
+    //   font-weight: 500;
+    //   font-family: "Courier New", Courier, monospace;
+    // }
+
+    &-text {
+      font-size: 1rem;
     }
   }
 
@@ -78,6 +103,7 @@
     .ant-modal-content {
       width: 400px;
     }
+
     .video-call-toolbar {
       width: 100%;
       background-color: aqua;
