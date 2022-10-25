@@ -54,7 +54,6 @@ function Chat({ socket }) {
   //---- hàm nhận tin nhắn từ socket gửi đến ----//
   useEffect(() => {
     socket.on("getMessage", (data) => {
-      console.log("start getMessage")
       const mess = createMess(
         data.text,
         "text",
@@ -67,8 +66,6 @@ function Chat({ socket }) {
       } else {
         setPendingMess(mess);
       }
-
-
     });
     // return () => socket.off("getMessage", addList);
   }, [socket]);
@@ -96,7 +93,6 @@ function Chat({ socket }) {
         text: message.content,
       });
       _setListMessage((_listMessage) => [message, ..._listMessage]);
-
     } catch (error) {
       console.log("Failed to call API send message" + error);
     }
@@ -266,10 +262,7 @@ function Chat({ socket }) {
           <div className="chat-header">
             <div className="chat-header-info">
               <div className="chat-header-info-img">
-                <img
-                  src={chatAcount.avatar}
-                  alt="avatar"
-                />
+                <img src={chatAcount.avatar} alt="avatar" />
               </div>
               <div className="chat-header-info-name">
                 <p>{chatAcount.receiver_nick_name}</p>
