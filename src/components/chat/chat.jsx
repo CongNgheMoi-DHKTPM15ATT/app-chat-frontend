@@ -54,7 +54,6 @@ function Chat({ socket }) {
   //---- hàm nhận tin nhắn từ socket gửi đến ----//
   useEffect(() => {
     socket.on("getMessage", (data) => {
-      console.log("hahaha");
       const mess = createMess(
         data.text,
         "text",
@@ -62,7 +61,11 @@ function Chat({ socket }) {
         data.senderId,
         data.nick_name
       );
-      setPendingMess(mess);
+      if (data.senderId === data.receiverId) {
+        _setListMessage((_listMessage) => [mess, ..._listMessage]);
+      } else {
+        setPendingMess(mess);
+      }
     });
     // return () => socket.off("getMessage", addList);
   }, [socket]);
@@ -76,9 +79,16 @@ function Chat({ socket }) {
         text: message.content,
       };
       const response = await messageAPI.sendMessage(params);
-      socket.emit("sendToSelf", {
+      socket.emit("send", {
         senderId: _id,
         receiverId: chatAcount.receiver_id,
+        nick_name: chatAcount.user_nick_name,
+        text: message.content,
+      });
+
+      socket.emit("send", {
+        senderId: _id,
+        receiverId: _id,
         nick_name: chatAcount.user_nick_name,
         text: message.content,
       });

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Button, Col, Form, Input, Modal, Row } from "antd";
+import { Button, Col, Form, Input, Modal, Row, Card, } from "antd";
 import { Link, useNavigate, Routes, Route, Navigate } from "react-router-dom";
 import SideBar from "../sideBar/sidebar";
 import Chat from "../chat/chat";
@@ -10,6 +10,7 @@ import { setChatAccount } from "../../slide/chatSlide";
 import { createConversations } from "../../slide/conversationSlide";
 import ListFriend from "../listFriend/listFriend";
 import { PhoneFilled } from "@ant-design/icons";
+
 import {
   addUser,
   closeModelAddFriend,
@@ -192,12 +193,15 @@ function HomePage() {
         <div className="info-user">
           <div className="info-user-img">
             <img
-              src={require("../../assets/images/user-icon_03.png")}
+              src={userGetById.avatar}
               alt="avatar"
             />
           </div>
           <div className="info-user-name">{userGetById.user_name}</div>
-          {/* <div className="info-user-date">{userGetById.birth_day}</div> */}
+          <Card title="Card title">
+            <div className="info-user-date">{userGetById.birth_day}</div>
+          </Card>
+          
         </div>
 
         <div className="modal-addfriend-footer">
@@ -228,12 +232,31 @@ function HomePage() {
         <div className="info-user">
           <div className="info-user-img">
             <img
-              src={require("../../assets/images/user-icon_03.png")}
+              src={account.avatar}
               alt="avatar"
             />
           </div>
           <div className="info-user-name">{account.user_name}</div>
-          {/* <div className="info-user-date">{userGetById.birth_day}</div> */}
+          <div className="info-user-label">phone</div>
+          <Card title="Thông tin cá nhân" bordered={false}>
+            <Row gutter={16}>
+              <Col span={8}>
+                <div className="">
+               {account.phone}</div>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={10}>
+                
+              </Col>
+              <Col span={14}>
+                <div className="info-user-phone">
+               {account.phone}</div>
+              </Col>
+            </Row>
+            
+            <div className="info-user-birthday">{account.birth_day}</div>
+          </Card>
         </div>
       </Modal>
 
@@ -271,7 +294,7 @@ function HomePage() {
               }}
             >
               <img
-                src={require("../../assets/images/user-icon_03.png")}
+                src={account.avatar}
                 alt="avatar"
                 style={{
                   width: "50%",

@@ -5,7 +5,7 @@ function ChatItem(prop) {
     new Date(prop.createdAt).getHours() +
     ":" +
     new Date(prop.createdAt).getMinutes();
-  console.log(prop)
+  // console.log(prop)
   return (
     // <div className="chat-item">
     //   {prop.senderId == prop.userID ? (

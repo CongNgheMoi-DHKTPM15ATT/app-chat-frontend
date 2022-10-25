@@ -144,7 +144,7 @@ function SideBar({ socket }) {
             conver_id={conver._id}
             // name={user.name}
             name={conver.receiver.nick_name}
-            avatar="../../assets/images/user-icon_03.png"
+            avatar="asdasd"
             content={conver.last_message.content}
             lastMess={changeCreate(conver.last_message.createdAt)}
           ></MessageItem>
@@ -292,7 +292,6 @@ function SideBar({ socket }) {
         id={props.id}
         onClick={() => {
           setChooseUser(props.id);
-          console.log(props);
           if (props.user.conversation !== null) {
             const action = setChatAccount({
               receiver_id: props.user._id,
@@ -339,7 +338,6 @@ function SideBar({ socket }) {
         </p>
       );
     }
-    console.log(list_friend);
     list_friend.map((user, index) => {
       if (user.status !== "BLOCK") {
         render_list_friend.push(
