@@ -35,7 +35,7 @@ function Chat({ socket }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const bottomRef = useRef(null);
-
+  const [image, setImage] = useState("");
   const audio_notification = new Audio(audios[1].src);
 
   //---- hàm lấy toàn bộ tin nhắn khi có sự thay dổi người nhận tin nhắn ----//
@@ -245,25 +245,39 @@ function Chat({ socket }) {
   };
 
   const handleUpLoadFile = (e) => {
-    const listFile_size = e.target.files.length;
-    for (var i = 0; i < listFile_size; i++) {
-      console.log(e.target.files[i]);
-      const formData = new FormData();
-      formData.append("img", e.target.files[i]);
-      axios
-        .put("https://codejava-app-anime.herokuapp.com/upload", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          mode: "no-cors",
-        })
-        .then(function (response) {
-          console.log(response);
-        })
-        .catch(function () {
-          console.log("FAILURE!!");
-        });
-    }
+    // const listFile_size = e.target.files.length;
+    // for (var i = 0; i < listFile_size; i++) {
+    //   console.log(e.target.files[i]);
+    //   const formData = new FormData();
+    //   formData.append("img", e.target.files[i]);
+    //   axios
+    //     .put("https://codejava-app-anime.herokuapp.com/upload", formData, {
+    //       headers: {
+    //         "Content-Type": "multipart/form-data",
+    //       },
+    //       mode: "no-cors",
+    //     })
+    //     .then(function (response) {
+    //       console.log(response);
+    //     })
+    //     .catch(function () {
+    //       console.log("FAILURE!!");
+    //     });
+    // }
+    console.log(e.target.files);
+    setImage(e.target.files[0]);
+    const formData = new FormData();
+    formData.append("img", image);
+    axios
+      .put("https://codejava-app-anime.herokuapp.com/upload", formData)
+      .then((result) => {
+        console.log(result.data);
+        alert("success");
+      })
+      .catch((error) => {
+        alert("service error");
+        console.log(error);
+      });
   };
 
   return (
