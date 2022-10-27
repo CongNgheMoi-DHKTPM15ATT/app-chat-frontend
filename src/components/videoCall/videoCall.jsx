@@ -5,24 +5,29 @@ import { PhoneFilled } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { io, Socket } from "socket.io-client";
 import Typical from "react-typical";
+import audios from "../../assets/audio/audios";
+import { setVideoCallAccount } from "../../slide/videoCallSlide";
 
 const socket = io(process.env.REACT_APP_SOCKET_URL);
 
 function VideoCall() {
   const account = useSelector((state) => state.account.account);
   const videoCallAccount = useSelector((state) => state.videoCall.account);
-  const [receiver, setReceiver] = useState("");
   const [stream, setStream] = useState();
   const [receivingCall, setReceivingCall] = useState(false);
   const [caller, setCaller] = useState("");
   const [callerSignal, setCallerSignal] = useState();
   const [callAccepted, setCallAccepted] = useState(false);
-  const [idToCall, setIdToCall] = useState("");
   const [callEnded, setCallEnded] = useState(false);
-  const [name, setName] = useState("");
   const myVideo = useRef();
   const userVideo = useRef();
   const connectionRef = useRef();
+  const dispatch = useDispatch();
+
+  const endCall = new Audio(audios[3].src);
+
+  const startCall = new Audio(audios[0].src);
+  startCall.loop = true;
 
   useEffect(() => {
     if (!socket) return;
@@ -32,7 +37,6 @@ function VideoCall() {
     socket.on("callUser", (data) => {
       setReceivingCall(true);
       setCaller(data.from);
-      setName(data.name);
       setCallerSignal(data.signal);
     });
   }, [socket]);
@@ -45,9 +49,20 @@ function VideoCall() {
       .then((stream) => {
         setStream(stream);
       });
-    if (videoCallAccount.type === "receiver") {
+    if (videoCallAccount.type === "receiver")
       socket.emit("accept_video_call", videoCallAccount.receiverId);
-    }
+    // else if (videoCallAccount.type === "sender") {
+    //   const action = setVideoCallAccount({
+    //     senderId: videoCallAccount.senderId,
+    //     sender_name: videoCallAccount.user_name,
+    //     receiverId: videoCallAccount.senderId,
+    //     receiver_name: videoCallAccount.sender_name,
+    //     type: "called",
+    //   });
+    //   dispatch(action);
+
+    //   callUser();
+    // }
   }, []);
 
   useEffect(() => {
@@ -62,6 +77,7 @@ function VideoCall() {
       stream: stream,
     });
     peer.on("signal", (data) => {
+      console.log(data);
       socket.emit("callUser", {
         signalData: data,
         senderId: videoCallAccount.senderId,
@@ -74,10 +90,12 @@ function VideoCall() {
       userVideo.current.srcObject = stream;
     });
     socket.on("callAccepted", (signal) => {
+      startCall.pause();
       setCallAccepted(true);
       peer.signal(signal);
     });
     connectionRef.current = peer;
+    startCall.play();
   };
 
   const answerCall = () => {
@@ -128,16 +146,16 @@ function VideoCall() {
             </div>
           ))}
 
-        <div className="video">
-          {callAccepted && !callEnded ? (
+        {callAccepted && !callEnded ? (
+          <div className="video">
             <video
               playsInline
               ref={userVideo}
               autoPlay
               className="play-receiver-video"
             />
-          ) : null}
-        </div>
+          </div>
+        ) : null}
       </div>
       {videoCallAccount.type !== "sender" ? null : !receivingCall ? (
         <div className="btn-call">

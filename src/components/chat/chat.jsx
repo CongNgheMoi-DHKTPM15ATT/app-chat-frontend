@@ -17,6 +17,8 @@ import messageAPI from "../../api/messageAPI";
 import { useNavigate } from "react-router-dom";
 import { setVideoCallAccount } from "../../slide/videoCallSlide";
 import S3API from "../../api/s3API";
+import audios from "../../assets/audio/audios";
+import axios from "axios";
 
 function Chat({ socket }) {
   const account = useSelector((state) => state.account.account);
@@ -34,6 +36,8 @@ function Chat({ socket }) {
   const navigate = useNavigate();
   const bottomRef = useRef(null);
 
+  const audio_notification = new Audio(audios[1].src);
+
   //---- hàm lấy toàn bộ tin nhắn khi có sự thay dổi người nhận tin nhắn ----//
   useEffect(() => {
     getAllMess(chatAcount.conversation_id);
@@ -47,6 +51,7 @@ function Chat({ socket }) {
       )
         _setListMessage((_listMessage) => [pendingMess.mess, ..._listMessage]);
     }
+    setPendingMess(null);
   }, [pendingMess]);
 
   //---- hàm nhận tin nhắn từ socket gửi đến ----//
@@ -60,6 +65,8 @@ function Chat({ socket }) {
         data.nick_name,
         data.avatar
       );
+      if (chatAcount.receiver_id === mess.sender.user_id)
+        audio_notification.play();
       setPendingMess({ receiverId: data.receiverId, mess: mess });
     });
     // return () => socket.off("getMessage", addList);
@@ -81,13 +88,6 @@ function Chat({ socket }) {
         text: message.content,
         avatar: message.sender.avatar,
       });
-      // socket.emit("send", {
-      //   senderId: _id,
-      //   receiverId: _id,
-      //   nick_name: chatAcount.user_nick_name,
-      //   text: message.content,
-      //   avatar: message.avatar,
-      // });
       _setListMessage((_listMessage) => [message, ..._listMessage]);
     } catch (error) {
       console.log("Failed to call API send message" + error);
@@ -144,6 +144,7 @@ function Chat({ socket }) {
     var befor_date = "";
     _listMessage.map((mess, index) => {
       if (index === 0) {
+        console.log(mess);
         _ListMess.push(
           <ChatItem
             key={index}
@@ -154,6 +155,7 @@ function Chat({ socket }) {
             createdAt={mess.createdAt}
             userID={_id}
             avatar={mess.sender.avatar}
+            content_type={mess.content_type}
           />
         );
         loadImg = mess.sender.user_id;
@@ -178,6 +180,7 @@ function Chat({ socket }) {
             loadImg={check}
             createdAt={mess.createdAt}
             userID={_id}
+            content_type={mess.content_type}
             avatar={mess.sender.avatar}
           />
         );
@@ -244,8 +247,22 @@ function Chat({ socket }) {
   const handleUpLoadFile = (e) => {
     const listFile_size = e.target.files.length;
     for (var i = 0; i < listFile_size; i++) {
-      console.log(e.target.files[i].name);
-      PostFileToS3(e.target.files[i].name);
+      console.log(e.target.files[i]);
+      const formData = new FormData();
+      formData.append("img", e.target.files[i]);
+      axios
+        .put("https://codejava-app-anime.herokuapp.com/upload", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          mode: "no-cors",
+        })
+        .then(function (response) {
+          console.log(response);
+        })
+        .catch(function () {
+          console.log("FAILURE!!");
+        });
     }
   };
 

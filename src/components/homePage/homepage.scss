@@ -1,4 +1,5 @@
-.homepage {}
+.homepage {
+}
 
 .modal-modelAcountUser {
   max-width: 30vw !important;
@@ -109,6 +110,31 @@
       background-color: aqua;
       display: flex;
       justify-content: center;
+    }
+  }
+}
+
+.create-group {
+  width: 100%;
+  height: 100%;
+  .create-group-name {
+    width: 100%;
+  }
+  &-add-friend {
+    width: 100%;
+    height: 100%;
+
+    margin-top: 15px;
+    background-color: aqua;
+    p {
+      margin: 0;
+    }
+    .list-add {
+      width: 100%;
+      height: auto;
+      min-height: 30px;
+      margin-bottom: 15px;
+      background-color: antiquewhite;
     }
   }
 }

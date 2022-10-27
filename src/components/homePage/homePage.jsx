@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Button, Col, Form, Input, Modal, Row, Card, } from "antd";
+import { Button, Col, Form, Input, Modal, Row, Card } from "antd";
 import { Link, useNavigate, Routes, Route, Navigate } from "react-router-dom";
 import SideBar from "../sideBar/sidebar";
 import Chat from "../chat/chat";
@@ -20,12 +20,18 @@ import userAPI from "../../api/userAPI";
 import { closeModelAcountUser } from "../../slide/modelAcountSlide";
 import { setVideoCallAccount } from "../../slide/videoCallSlide";
 import { io } from "socket.io-client";
+import audios from "../../assets/audio/audios";
+import { closeModalCreateGroup } from "../../slide/modalCreateGroup";
+// import sound_videoCall from "./audio_zalo.mp3";
 
 const socket = io(process.env.REACT_APP_SOCKET_URL);
 
 function HomePage() {
   const [receivingCall, setReceivingCall] = useState(false);
   const account = useSelector((state) => state.account.account);
+  const modalCreateGroup = useSelector(
+    (state) => state.modalCreateGroup.openModal
+  );
   const modelAcountUser = useSelector(
     (state) => state.modelAcountUser.openModal
   );
@@ -37,17 +43,20 @@ function HomePage() {
   const [userGetById, setUserGetById] = useState("");
   const [videoData, setVideoData] = useState(null);
   const [videoName, setVideoName] = useState("");
-  const formRef = useRef(null);
+  const [audio, setAudio] = useState(new Audio(audios[2].src));
+  const audioRef = useRef();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   //---- hàm kết nối với socket ----//
   useEffect(() => {
     socket.emit("addUser", { senderId: account._id });
+    audio.loop = true;
   }, []);
 
   useEffect(() => {
     socket.on("request_video_call", (data) => {
+      audio.play();
       setReceivingCall(true);
       setVideoName(data.sender_name);
       setVideoData(data);
@@ -99,12 +108,16 @@ function HomePage() {
     setReceivingCall(false);
     const y = window.top.outerHeight / 2 + window.top.screenY - 500 / 1.5;
     const x = window.top.outerWidth / 2 + window.top.screenX - 900 / 2;
-
+    audio.pause();
     window.open("/video-call", "", `width=900,height=500,top=${y},left=${x}`);
   };
 
   const handleCancel_Call = () => {
     setReceivingCall(false);
+  };
+
+  const handleCancel_ModalCreateGroup = () => {
+    dispatch(closeModalCreateGroup());
   };
 
   const handleCancel_modelAcountUser = () => {
@@ -192,16 +205,12 @@ function HomePage() {
       >
         <div className="info-user">
           <div className="info-user-img">
-            <img
-              src={userGetById.avatar}
-              alt="avatar"
-            />
+            <img src={userGetById.avatar} alt="avatar" />
           </div>
           <div className="info-user-name">{userGetById.user_name}</div>
           <Card title="Card title">
             <div className="info-user-date">{userGetById.birth_day}</div>
           </Card>
-          
         </div>
 
         <div className="modal-addfriend-footer">
@@ -231,30 +240,23 @@ function HomePage() {
       >
         <div className="info-user">
           <div className="info-user-img">
-            <img
-              src={account.avatar}
-              alt="avatar"
-            />
+            <img src={account.avatar} alt="avatar" />
           </div>
           <div className="info-user-name">{account.user_name}</div>
           <div className="info-user-label">phone</div>
           <Card title="Thông tin cá nhân" bordered={false}>
             <Row gutter={16}>
               <Col span={8}>
-                <div className="">
-               {account.phone}</div>
+                <div className="">{account.phone}</div>
               </Col>
             </Row>
             <Row gutter={16}>
-              <Col span={10}>
-                
-              </Col>
+              <Col span={10}></Col>
               <Col span={14}>
-                <div className="info-user-phone">
-               {account.phone}</div>
+                <div className="info-user-phone">{account.phone}</div>
               </Col>
             </Row>
-            
+
             <div className="info-user-birthday">{account.birth_day}</div>
           </Card>
         </div>
@@ -268,6 +270,7 @@ function HomePage() {
         header={null}
         className="video-call"
         width={400}
+        style={{ borderRadius: "50px" }}
       >
         <div>
           <div className="caller">
@@ -283,8 +286,8 @@ function HomePage() {
                 textAlign: "center",
               }}
             >
-              {/* <b>{videoName}</b> */}
-              <b>Nguyễn Hải Nam</b>
+              <b>{videoName}</b>
+              {/* <b>Nguyễn Hải Nam</b> */}
             </h5>
             <div
               style={{
@@ -331,6 +334,28 @@ function HomePage() {
               >
                 <PhoneFilled />
               </Button>
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        title="Tạo nhóm"
+        open={modalCreateGroup}
+        //onOk={handleOk_modelAddFriend}
+        onCancel={handleCancel_ModalCreateGroup}
+        footer={null}
+      >
+        <div className="create-group">
+          <div className="create-group-name">
+            <Input placeholder="Nhập tên nhóm"></Input>
+          </div>
+          <div className="create-group-add-friend">
+            <p>Danh sách bạn bè vào nhóm</p>
+            <div className="list-add"></div>
+            <p>Tìm kiếm bạn bè</p>
+            <div className="search-user">
+              <Input placeholder="Tìm kiếm bạn bè"></Input>
             </div>
           </div>
         </div>
