@@ -245,39 +245,25 @@ function Chat({ socket }) {
   };
 
   const handleUpLoadFile = (e) => {
-    // const listFile_size = e.target.files.length;
-    // for (var i = 0; i < listFile_size; i++) {
-    //   console.log(e.target.files[i]);
-    //   const formData = new FormData();
-    //   formData.append("img", e.target.files[i]);
-    //   axios
-    //     .put("https://codejava-app-anime.herokuapp.com/upload", formData, {
-    //       headers: {
-    //         "Content-Type": "multipart/form-data",
-    //       },
-    //       mode: "no-cors",
-    //     })
-    //     .then(function (response) {
-    //       console.log(response);
-    //     })
-    //     .catch(function () {
-    //       console.log("FAILURE!!");
-    //     });
-    // }
-    console.log(e.target.files);
-    setImage(e.target.files[0]);
-    const formData = new FormData();
-    formData.append("img", image);
-    axios
-      .put("https://codejava-app-anime.herokuapp.com/upload", formData)
-      .then((result) => {
-        console.log(result.data);
-        alert("success");
-      })
-      .catch((error) => {
-        alert("service error");
-        console.log(error);
-      });
+    const listFile_size = e.target.files.length;
+    for (var i = 0; i < listFile_size; i++) {
+      console.log(e.target.files[i]);
+      const formData = new FormData();
+      formData.append("img", e.target.files[i]);
+      axios
+        .put("http://localhost:8083/upload", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          mode: "no-cors",
+        })
+        .then(function (response) {
+          console.log(response);
+        })
+        .catch(function () {
+          console.log("FAILURE!!");
+        });
+    }
   };
 
   return (
