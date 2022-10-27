@@ -96,14 +96,13 @@ function PrivateRoute({ children }) {
 function VideoCallRoute({ children }) {
   const auth = useAuth();
   const videoCall_account = useSelector((state) => state.videoCall.account);
-  return children;
-  // auth ? (
-  // videoCall_account.receiver_id === "" ? (
-  //   <Navigate to="/home" />
-  // ) : (
-  // children
-  //   )
-  // ) : (
-  //   <Navigate to="/login" />
-  // );
+  return auth ? (
+    videoCall_account.receiver_id === "" ? (
+      <Navigate to="/home" />
+    ) : (
+      children
+    )
+  ) : (
+    <Navigate to="/login" />
+  );
 }

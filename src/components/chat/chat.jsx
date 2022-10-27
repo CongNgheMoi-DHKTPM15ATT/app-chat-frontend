@@ -17,6 +17,8 @@ import messageAPI from "../../api/messageAPI";
 import { useNavigate } from "react-router-dom";
 import { setVideoCallAccount } from "../../slide/videoCallSlide";
 import S3API from "../../api/s3API";
+import audios from "../../assets/audio/audios";
+import axios from "axios";
 
 function Chat({ socket }) {
   const account = useSelector((state) => state.account.account);
@@ -25,7 +27,7 @@ function Chat({ socket }) {
   const [value, setValue] = useState("");
   const [rightTab, setRightTab] = useState(false);
   const [_listMessage, _setListMessage] = useState([]);
-  const [pendingMess, setPendingMess] = useState("");
+  const [pendingMess, setPendingMess] = useState(null);
   const content = useRef("");
   const ngay_trong_tuan = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
   const [__ListFileUpload, __SetListFileUpLoad] = useState([]);
@@ -34,22 +36,23 @@ function Chat({ socket }) {
   const navigate = useNavigate();
   const bottomRef = useRef(null);
 
+  const audio_notification = new Audio(audios[1].src);
+
   //---- hàm lấy toàn bộ tin nhắn khi có sự thay dổi người nhận tin nhắn ----//
   useEffect(() => {
     getAllMess(chatAcount.conversation_id);
   }, [chatAcount]);
 
   useEffect(() => {
-    if (pendingMess !== "") {
-      if (chatAcount.receiver_id === pendingMess.sender.user_id)
-        _setListMessage((_listMessage) => [pendingMess, ..._listMessage]);
+    if (pendingMess) {
+      if (
+        chatAcount.receiver_id === pendingMess.mess.sender.user_id ||
+        pendingMess.receiverId === chatAcount.receiver_id
+      )
+        _setListMessage((_listMessage) => [pendingMess.mess, ..._listMessage]);
     }
+    setPendingMess(null);
   }, [pendingMess]);
-
-  // useEffect(() => {
-  //   bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  //   console.log("find");
-  // }, [_listMessage]);
 
   //---- hàm nhận tin nhắn từ socket gửi đến ----//
   useEffect(() => {
@@ -59,13 +62,12 @@ function Chat({ socket }) {
         "text",
         false,
         data.senderId,
-        data.nick_name
+        data.nick_name,
+        data.avatar
       );
-      if (data.senderId === data.receiverId) {
-        _setListMessage((_listMessage) => [mess, ..._listMessage]);
-      } else {
-        setPendingMess(mess);
-      }
+      if (chatAcount.receiver_id === mess.sender.user_id)
+        audio_notification.play();
+      setPendingMess({ receiverId: data.receiverId, mess: mess });
     });
     // return () => socket.off("getMessage", addList);
   }, [socket]);
@@ -84,13 +86,7 @@ function Chat({ socket }) {
         receiverId: chatAcount.receiver_id,
         nick_name: chatAcount.user_nick_name,
         text: message.content,
-      });
-
-      socket.emit("send", {
-        senderId: _id,
-        receiverId: _id,
-        nick_name: chatAcount.user_nick_name,
-        text: message.content,
+        avatar: message.sender.avatar,
       });
       _setListMessage((_listMessage) => [message, ..._listMessage]);
     } catch (error) {
@@ -98,17 +94,14 @@ function Chat({ socket }) {
     }
   };
   //---- hàm tạo 1 đối tượng tin nhắn ----//
-  function createMess(content, content_type, deleted, user_id, name) {
+  function createMess(content, content_type, deleted, user_id, name, avatar) {
     const d = new Date();
     const mess = {
       content: content,
       content_type: content_type,
       deleted: deleted,
       createdAt: d,
-      sender: {
-        user_id: user_id,
-        nick_name: name,
-      },
+      sender: { avatar: avatar, user_id: user_id, nick_name: name },
     };
     return mess;
   }
@@ -151,6 +144,7 @@ function Chat({ socket }) {
     var befor_date = "";
     _listMessage.map((mess, index) => {
       if (index === 0) {
+        console.log(mess);
         _ListMess.push(
           <ChatItem
             key={index}
@@ -161,6 +155,7 @@ function Chat({ socket }) {
             createdAt={mess.createdAt}
             userID={_id}
             avatar={mess.sender.avatar}
+            content_type={mess.content_type}
           />
         );
         loadImg = mess.sender.user_id;
@@ -185,6 +180,7 @@ function Chat({ socket }) {
             loadImg={check}
             createdAt={mess.createdAt}
             userID={_id}
+            content_type={mess.content_type}
             avatar={mess.sender.avatar}
           />
         );
@@ -195,10 +191,10 @@ function Chat({ socket }) {
     return _ListMess;
   };
 
-  const handleOneBlur = () => {
-    let _text = document.getElementById("mess-text").innerHTML;
-    if (_text.trim() === "") setValue("");
-  };
+  // const handleOneBlur = () => {
+  //   let _text = document.getElementById("mess-text").innerHTML;
+  //   if (_text.trim() === "") setValue("");
+  // };
 
   const handleVideoCall = () => {
     const y = window.top.outerHeight / 2 + window.top.screenY - 500 / 1.5;
@@ -229,7 +225,8 @@ function Chat({ socket }) {
         "text",
         false,
         _id,
-        chatAcount.user_nick_name
+        chatAcount.user_nick_name,
+        account.avatar
       );
       handleSendMessage(mess);
     }
@@ -250,8 +247,22 @@ function Chat({ socket }) {
   const handleUpLoadFile = (e) => {
     const listFile_size = e.target.files.length;
     for (var i = 0; i < listFile_size; i++) {
-      console.log(e.target.files[i].name);
-      PostFileToS3(e.target.files[i].name);
+      console.log(e.target.files[i]);
+      const formData = new FormData();
+      formData.append("img", e.target.files[i]);
+      axios
+        .put("https://codejava-app-anime.herokuapp.com/upload", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          mode: "no-cors",
+        })
+        .then(function (response) {
+          console.log(response);
+        })
+        .catch(function () {
+          console.log("FAILURE!!");
+        });
     }
   };
 
