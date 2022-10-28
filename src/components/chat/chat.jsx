@@ -35,7 +35,7 @@ function Chat({ socket }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const bottomRef = useRef(null);
-
+  const [image, setImage] = useState("");
   const audio_notification = new Audio(audios[1].src);
 
   //---- hàm lấy toàn bộ tin nhắn khi có sự thay dổi người nhận tin nhắn ----//
@@ -251,7 +251,7 @@ function Chat({ socket }) {
       const formData = new FormData();
       formData.append("img", e.target.files[i]);
       axios
-        .put("https://codejava-app-anime.herokuapp.com/upload", formData, {
+        .put("http://localhost:8083/upload", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
