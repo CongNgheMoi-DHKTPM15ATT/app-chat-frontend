@@ -22,6 +22,7 @@ import { setVideoCallAccount } from "../../slide/videoCallSlide";
 import { io } from "socket.io-client";
 import audios from "../../assets/audio/audios";
 import { closeModalCreateGroup } from "../../slide/modalCreateGroup";
+import ConversationAPI from "../../api/conversationAPI";
 // import sound_videoCall from "./audio_zalo.mp3";
 
 const socket = io(process.env.REACT_APP_SOCKET_URL);
@@ -42,11 +43,19 @@ function HomePage() {
   );
   const [userGetById, setUserGetById] = useState("");
   const [videoData, setVideoData] = useState(null);
+  const [list_friend, setList_friend] = useState([]);
+  const [list_friend_group, setList_friend_group] = useState([]);
+  const [txt_search, setTxt_Search] = useState("");
+  const [txt_name_group, setTxt_name_group] = useState("");
   const [videoName, setVideoName] = useState("");
   const [audio, setAudio] = useState(new Audio(audios[2].src));
   const audioRef = useRef();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    handleGetListSearch(txt_search);
+  }, [list_friend_group]);
 
   //---- hàm kết nối với socket ----//
   useEffect(() => {
@@ -65,12 +74,7 @@ function HomePage() {
 
   useEffect(() => {
     getUserById(modelAddFriend_user);
-    console.log(getUserById(modelAddFriend_user));
   }, [modelAddFriend_user]);
-
-  // useEffect(() => {
-  //   console.log(userGetById);
-  // }, [userGetById]);
 
   const getUserById = async (id) => {
     const params = { _id: id };
@@ -78,6 +82,23 @@ function HomePage() {
     try {
       const response = await userAPI.getUserbyId(params);
       setUserGetById(response);
+    } catch (error) {
+      console.log("Fail when axios API get user by ID: " + error);
+    }
+  };
+
+  const createGroup = async () => {
+    var tmp = [account._id];
+    list_friend_group.map((user) => {
+      tmp.push(user.id);
+    });
+    const params = { group_name: txt_name_group, user_id: tmp };
+    console.log(params);
+
+    try {
+      const response = await ConversationAPI.createGroupConversation(params);
+      setList_friend_group([]);
+      dispatch(closeModalCreateGroup());
     } catch (error) {
       console.log("Fail when axios API get user by ID: " + error);
     }
@@ -117,6 +138,7 @@ function HomePage() {
   };
 
   const handleCancel_ModalCreateGroup = () => {
+    setList_friend_group([]);
     dispatch(closeModalCreateGroup());
   };
 
@@ -152,6 +174,72 @@ function HomePage() {
     console.log("cancel");
     dispatch(closeModalLogout());
   };
+
+  const handleGetListSearch = async (text) => {
+    try {
+      const params = {
+        user_id: account._id,
+        filter: text,
+      };
+      const response = await userAPI.searchUser(params);
+      setList_friend([]);
+      response.map((user) => {
+        console.log(list_friend_group.findIndex((u) => u.id === user._id));
+        if (list_friend_group.findIndex((u) => u.id === user._id) === -1)
+          setList_friend((list_friend) => [user, ...list_friend]);
+      });
+    } catch (error) {
+      console.log("Failed to call API get list search" + error);
+    }
+  };
+
+  function UserItem(props) {
+    return (
+      <div id={props.id} className="search-user-item">
+        <div className="search-user-item-left">
+          <img src={props.user.avatar} alt="avatar" />
+        </div>
+        <div className="search-user-item-center">
+          <div className="search-user-item-name">{props.user.nick_name}</div>
+        </div>
+
+        <div className="search-user-item-right">
+          <Button
+            type="primary "
+            className="btn-add-user"
+            onClick={() => {
+              setList_friend_group((list_friend_group) => [
+                { id: props.user._id, name: props.user.nick_name },
+                ...list_friend_group,
+              ]);
+            }}
+          >
+            Chọn
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  function rederListUser() {
+    var render_list_friend = [];
+    if (list_friend.length == 0) {
+      return (
+        <p style={{ margin: "2vw", fontWeight: "500", textAlign: "center" }}>
+          Không có người dùng tương thích với yêu cầu tìm kiếm
+        </p>
+      );
+    }
+    list_friend.map((user, index) => {
+      if (user.status !== "BLOCK") {
+        render_list_friend.push(
+          <UserItem key={index} id={index} user={user}></UserItem>
+        );
+      }
+    });
+    return render_list_friend;
+  }
+
   return (
     <div className="homepage">
       <Row>
@@ -185,8 +273,16 @@ function HomePage() {
       <Modal
         title="Cảnh báo"
         open={modelLogout}
-        onOk={handleOk}
+        // onOk={handleOk}
         onCancel={handleCancel}
+        footer={[
+          <Button key="back" onClick={handleCancel_ModalCreateGroup}>
+            Hủy
+          </Button>,
+          <Button key="submit" type="primary" onClick={handleOk}>
+            Đăng xuất
+          </Button>,
+        ]}
       >
         <p
           style={{ textAlign: "center", fontWeight: "500", fontSize: "1.2em" }}
@@ -344,18 +440,53 @@ function HomePage() {
         open={modalCreateGroup}
         //onOk={handleOk_modelAddFriend}
         onCancel={handleCancel_ModalCreateGroup}
-        footer={null}
+        footer={[
+          <Button key="back" onClick={handleCancel_ModalCreateGroup}>
+            Hủy
+          </Button>,
+          <Button
+            key="submit"
+            style={{ backgroundColor: "#468bff", color: "white" }}
+            onClick={createGroup}
+          >
+            Tạo nhóm
+          </Button>,
+        ]}
       >
         <div className="create-group">
           <div className="create-group-name">
-            <Input placeholder="Nhập tên nhóm"></Input>
+            <Input
+              placeholder="Nhập tên nhóm"
+              type="text"
+              value={txt_name_group}
+              onChange={(e) => {
+                setTxt_name_group(e.target.value);
+              }}
+            ></Input>
           </div>
           <div className="create-group-add-friend">
             <p>Danh sách bạn bè vào nhóm</p>
-            <div className="list-add"></div>
+            <div className="list-add">
+              {list_friend_group.map((user, index) => (
+                <div className="list-add-user" key={index}>
+                  {user.name}
+                </div>
+              ))}
+            </div>
             <p>Tìm kiếm bạn bè</p>
             <div className="search-user">
-              <Input placeholder="Tìm kiếm bạn bè"></Input>
+              <Form className="form-search">
+                <Input
+                  placeholder="Tìm kiếm bạn bè"
+                  type="text"
+                  value={txt_search}
+                  onChange={(e) => {
+                    setTxt_Search(e.target.value);
+                    handleGetListSearch(e.target.value);
+                  }}
+                />
+              </Form>
+              <div className="search-user-list">{rederListUser()}</div>
             </div>
           </div>
         </div>

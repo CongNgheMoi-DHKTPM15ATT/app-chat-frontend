@@ -5,7 +5,7 @@ import ConversationAPI from "../../api/conversationAPI";
 import messageAPI from "../../api/messageAPI";
 import userAPI from "../../api/userAPI";
 
-function ListFriend() {
+function ListFriend({ socket }) {
   const [chooseTab, setChooseTab] = useState(0);
   const account = useSelector((state) => state.account.account);
   const [listRender, setListRender] = useState([]);
@@ -37,12 +37,10 @@ function ListFriend() {
       receiver_id: receiver_id,
       is_accept: true,
     };
-    console.log(params);
     try {
       const response = await userAPI.sendConfirmRequest(params);
       if (response === "Now! You already have a new friend") {
         handleCreateConversation(receiver_id);
-        handleGetListPending();
       }
       console.log(response);
     } catch (error) {
@@ -56,17 +54,16 @@ function ListFriend() {
     };
     try {
       const response = await ConversationAPI.createConversation(params);
-      console.log(response);
-      await messageAPI.sendMessage({
-        sender_id: account._id,
-        conversation_id: response._id,
-        text: "2 Bạn đã có thể trò chuyện với nhau",
-      });
-      await messageAPI.sendMessage({
-        sender_id: receiver_id,
-        conversation_id: response._id,
-        text: "Hãy cũng trải nghiệm Nulo",
-      });
+      if (response._id) {
+        await messageAPI.sendMessage({
+          sender_id: account._id,
+          conversation_id: response._id,
+          text: "Các bạn đã được kêt nối với nhau trên Nulo. Hãy bắt đầu cuộc trò chuyện ngay thôi",
+          content_type: "notification",
+        });
+        socket.emit("loadConver", { sender_id: account._id });
+        handleGetListPending();
+      }
     } catch (error) {
       console.log("Fail when call API create conversation");
     }
