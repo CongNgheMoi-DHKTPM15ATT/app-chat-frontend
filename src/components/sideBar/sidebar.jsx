@@ -24,6 +24,7 @@ import { Link } from "react-router-dom";
 import { addUser, showModelAddFriend } from "../../slide/modalAddFriendSlide";
 import userAPI from "../../api/userAPI";
 import { showModelAcountUser } from "../../slide/modelAcountSlide";
+import { showModalCreateGroup } from "../../slide/modalCreateGroup";
 
 function SideBar({ socket }) {
   const account = useSelector((state) => state.account.account);
@@ -40,10 +41,6 @@ function SideBar({ socket }) {
   const dispatch = useDispatch();
   const href_now = window.location.pathname.split("/")[2];
 
-  // useEffect(() => {
-  //   console.log(chooseItem);
-  // }, [chooseItem]);
-
   useEffect(() => {
     if (href_now === "list-friend") {
       setChooseItem("btn-friend");
@@ -54,14 +51,6 @@ function SideBar({ socket }) {
   useEffect(() => {
     setChooseConver(chatAcount.conversation_id);
   }, [chatAcount]);
-
-  // useEffect(() => {
-  //   console.log(chooseFriend);
-  // }, [chooseFriend]);
-
-  // useEffect(() => {
-  //   console.log(chooseConver);
-  // }, [chooseConver]);
 
   useEffect(() => {
     if (list_friend.length > 0) setSearch(false);
@@ -75,6 +64,7 @@ function SideBar({ socket }) {
         conversation_id: conversations[0]._id,
         user_nick_name: conversations[0].nick_name,
         receiver_nick_name: conversations[0].receiver.nick_name,
+        avatar: conversations[0].receiver.avatar,
       });
       dispatch(action);
       setChooseMessage(0);
@@ -88,6 +78,7 @@ function SideBar({ socket }) {
   //---- hàm nhận tin nhắn từ socket gửi đến ----//
   useEffect(() => {
     const changeConver = () => {
+      console.log("vooooo");
       handleGetConversations(account._id);
     };
     socket.on("getMessage", changeConver);
@@ -145,7 +136,11 @@ function SideBar({ socket }) {
             // name={user.name}
             name={conver.receiver.nick_name}
             avatar="asdasd"
-            content={conver.last_message.content}
+            content={
+              conver.last_message.content_type === "image"
+                ? " Tin nhắn hình ảnh "
+                : conver.last_message.content
+            }
             lastMess={changeCreate(conver.last_message.createdAt)}
           ></MessageItem>
         );
@@ -175,7 +170,10 @@ function SideBar({ socket }) {
         </div>
         <div
           className={"tag-Friend " + (chooseFriend == 2 ? "active" : "")}
-          onClick={() => setChooseFriend(2)}
+          onClick={() => {
+            // setChooseFriend(2);
+            dispatch(showModalCreateGroup());
+          }}
         >
           <UsergroupAddOutlined />
           <span>Tạo nhóm</span>
@@ -184,15 +182,11 @@ function SideBar({ socket }) {
     );
   }
 
-  const items = [{
+  const items = [
+    {
       label: `${account.user_name}`,
       key: "btn-user",
-      icon: (
-        <img
-          src={account.avatar}
-          alt="avatar"
-        />
-      ),
+      icon: <img src={account.avatar} alt="avatar" />,
     },
     {
       label: <Link to="/home/message">tin nhắn</Link>,
@@ -209,12 +203,14 @@ function SideBar({ socket }) {
       label: "Cài đặt",
       key: "btn-setting",
       icon: <SettingTwoTone />,
-      children: [{
-        label: "Đăng xuất",
-        key: "btn-logout",
-        icon: <LogoutOutlined />,
-        // onClick: { showModal },
-      }, ],
+      children: [
+        {
+          label: "Đăng xuất",
+          key: "btn-logout",
+          icon: <LogoutOutlined />,
+          // onClick: { showModal },
+        },
+      ],
     },
   ];
   const onClicksideBar = (key) => {
@@ -224,12 +220,10 @@ function SideBar({ socket }) {
     } else if (key === "btn-message") {
       setSearch(true);
       setTxt_Search("");
+      handleGetConversations(account._id);
       changeAcountbyChooseMessage(chooseMessage);
     } else if (key === "btn-user") {
       dispatch(showModelAcountUser());
-      // setSearch(true);
-      // setTxt_Search("");
-      // changeAcountbyChooseMessage(chooseMessage);
     } else if (key === "btn-notifi") {
       setSearch(true);
       setTxt_Search("");
@@ -252,17 +246,14 @@ function SideBar({ socket }) {
             conversation_id: conversations[props.id]._id,
             user_nick_name: conversations[props.id].nick_name,
             receiver_nick_name: conversations[props.id].receiver.nick_name,
-            avatar: conversations[props.id].receiver.avatar
+            avatar: conversations[props.id].receiver.avatar,
           });
           dispatch(action);
         }}
         className={"messageItem " + (chooseMessage == props.id ? "active" : "")}
       >
         <div className="messageItem-left">
-          <img
-            src={conversations[props.id].receiver.avatar}
-            alt="avatar"
-          />
+          <img src={conversations[props.id].receiver.avatar} alt="avatar" />
         </div>
         <div className="messageItem-center">
           <div className="message-name">{props.name}</div>
@@ -282,6 +273,7 @@ function SideBar({ socket }) {
       conversation_id: conversations[index]._id,
       user_nick_name: conversations[index].nick_name,
       receiver_nick_name: conversations[index].receiver.nick_name,
+      avatar: conversations[index].receiver.avatar,
     });
     dispatch(action);
   };
@@ -298,6 +290,7 @@ function SideBar({ socket }) {
               conversation_id: props.user.conversation,
               user_nick_name: account._id,
               receiver_nick_name: props.user.nick_name,
+              avatar: props.user.avatar,
             });
             dispatch(action);
           } else {
@@ -308,10 +301,7 @@ function SideBar({ socket }) {
         className={"messageItem " + (chooseUser == props.id ? "active" : "")}
       >
         <div className="messageItem-left">
-          <img
-            src={props.user.avatar}
-            alt="avatar"
-          />
+          <img src={props.user.avatar} alt="avatar" />
         </div>
         <div className="messageItem-center">
           <div className="message-name">{props.user.nick_name}</div>

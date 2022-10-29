@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+
 import { Button, Col, Form, Input, Modal, Row, Card, Typography, Collapse, List, Popover, DatePicker } from "antd";
+
 import { Link, useNavigate, Routes, Route, Navigate } from "react-router-dom";
 import SideBar from "../sideBar/sidebar";
 import Chat from "../chat/chat";
@@ -26,6 +28,10 @@ import { closeModelAcountUser } from "../../slide/modelAcountSlide";
 import { closeModalUpdateAccount, showModalUpdateAccount } from "../../slide/modalUpdateAccountSlide";
 import { setVideoCallAccount } from "../../slide/videoCallSlide";
 import { io } from "socket.io-client";
+import audios from "../../assets/audio/audios";
+import { closeModalCreateGroup } from "../../slide/modalCreateGroup";
+import ConversationAPI from "../../api/conversationAPI";
+// import sound_videoCall from "./audio_zalo.mp3";
 
 const { Title, Paragraph, Text } = Typography;
 const { Panel } = Collapse;
@@ -35,6 +41,9 @@ const socket = io(process.env.REACT_APP_SOCKET_URL);
 function HomePage() {
   const [receivingCall, setReceivingCall] = useState(false);
   const account = useSelector((state) => state.account.account);
+  const modalCreateGroup = useSelector(
+    (state) => state.modalCreateGroup.openModal
+  );
   const modelAcountUser = useSelector(
     (state) => state.modelAcountUser.openModal
   );
@@ -50,18 +59,29 @@ function HomePage() {
   );
   const [userGetById, setUserGetById] = useState("");
   const [videoData, setVideoData] = useState(null);
+  const [list_friend, setList_friend] = useState([]);
+  const [list_friend_group, setList_friend_group] = useState([]);
+  const [txt_search, setTxt_Search] = useState("");
+  const [txt_name_group, setTxt_name_group] = useState("");
   const [videoName, setVideoName] = useState("");
-  const formRef = useRef(null);
+  const [audio, setAudio] = useState(new Audio(audios[2].src));
+  const audioRef = useRef();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    handleGetListSearch(txt_search);
+  }, [list_friend_group]);
 
   //---- hàm kết nối với socket ----//
   useEffect(() => {
     socket.emit("addUser", { senderId: account._id });
+    audio.loop = true;
   }, []);
 
   useEffect(() => {
     socket.on("request_video_call", (data) => {
+      audio.play();
       setReceivingCall(true);
       setVideoName(data.sender_name);
       setVideoData(data);
@@ -70,12 +90,7 @@ function HomePage() {
 
   useEffect(() => {
     getUserById(modelAddFriend_user);
-    console.log(getUserById(modelAddFriend_user));
   }, [modelAddFriend_user]);
-
-  // useEffect(() => {
-  //   console.log(userGetById);
-  // }, [userGetById]);
 
   const getUserById = async (id) => {
     const params = { _id: id };
@@ -83,6 +98,23 @@ function HomePage() {
     try {
       const response = await userAPI.getUserbyId(params);
       setUserGetById(response);
+    } catch (error) {
+      console.log("Fail when axios API get user by ID: " + error);
+    }
+  };
+
+  const createGroup = async () => {
+    var tmp = [account._id];
+    list_friend_group.map((user) => {
+      tmp.push(user.id);
+    });
+    const params = { group_name: txt_name_group, user_id: tmp };
+    console.log(params);
+
+    try {
+      const response = await ConversationAPI.createGroupConversation(params);
+      setList_friend_group([]);
+      dispatch(closeModalCreateGroup());
     } catch (error) {
       console.log("Fail when axios API get user by ID: " + error);
     }
@@ -113,12 +145,17 @@ function HomePage() {
     setReceivingCall(false);
     const y = window.top.outerHeight / 2 + window.top.screenY - 500 / 1.5;
     const x = window.top.outerWidth / 2 + window.top.screenX - 900 / 2;
-
+    audio.pause();
     window.open("/video-call", "", `width=900,height=500,top=${y},left=${x}`);
   };
 
   const handleCancel_Call = () => {
     setReceivingCall(false);
+  };
+
+  const handleCancel_ModalCreateGroup = () => {
+    setList_friend_group([]);
+    dispatch(closeModalCreateGroup());
   };
 
   const handleCancel_modelAcountUser = () => {
@@ -159,6 +196,72 @@ function HomePage() {
     dispatch(closeModalLogout());
   };
 
+
+  const handleGetListSearch = async (text) => {
+    try {
+      const params = {
+        user_id: account._id,
+        filter: text,
+      };
+      const response = await userAPI.searchUser(params);
+      setList_friend([]);
+      response.map((user) => {
+        console.log(list_friend_group.findIndex((u) => u.id === user._id));
+        if (list_friend_group.findIndex((u) => u.id === user._id) === -1)
+          setList_friend((list_friend) => [user, ...list_friend]);
+      });
+    } catch (error) {
+      console.log("Failed to call API get list search" + error);
+    }
+  };
+
+  function UserItem(props) {
+    return (
+      <div id={props.id} className="search-user-item">
+        <div className="search-user-item-left">
+          <img src={props.user.avatar} alt="avatar" />
+        </div>
+        <div className="search-user-item-center">
+          <div className="search-user-item-name">{props.user.nick_name}</div>
+        </div>
+
+        <div className="search-user-item-right">
+          <Button
+            type="primary "
+            className="btn-add-user"
+            onClick={() => {
+              setList_friend_group((list_friend_group) => [
+                { id: props.user._id, name: props.user.nick_name },
+                ...list_friend_group,
+              ]);
+            }}
+          >
+            Chọn
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  function rederListUser() {
+    var render_list_friend = [];
+    if (list_friend.length == 0) {
+      return (
+        <p style={{ margin: "2vw", fontWeight: "500", textAlign: "center" }}>
+          Không có người dùng tương thích với yêu cầu tìm kiếm
+        </p>
+      );
+    }
+    list_friend.map((user, index) => {
+      if (user.status !== "BLOCK") {
+        render_list_friend.push(
+          <UserItem key={index} id={index} user={user}></UserItem>
+        );
+      }
+    });
+    return render_list_friend;
+  }
+
   return (
     <div className="homepage">
       <Row>
@@ -192,8 +295,16 @@ function HomePage() {
       <Modal
         title="Cảnh báo"
         open={modelLogout}
-        onOk={handleOk}
+        // onOk={handleOk}
         onCancel={handleCancel}
+        footer={[
+          <Button key="back" onClick={handleCancel_ModalCreateGroup}>
+            Hủy
+          </Button>,
+          <Button key="submit" type="primary" onClick={handleOk}>
+            Đăng xuất
+          </Button>,
+        ]}
       >
         <p
           style={{ textAlign: "center", fontWeight: "500", fontSize: "1.2em" }}
@@ -212,14 +323,14 @@ function HomePage() {
       >
         <div className="info-user">
           <div className="info-user-img">
-            <img
-              src={userGetById.avatar}
-              alt="avatar"
-            />
+            <img src={userGetById.avatar} alt="avatar" />
           </div>
           <div className="info-user-name">{userGetById.user_name}</div>
-          
-          
+
+          <Card title="Card title">
+            <div className="info-user-date">{userGetById.birth_day}</div>
+          </Card>
+
         </div>
 
         <div className="modal-addfriend-footer">
@@ -250,12 +361,10 @@ function HomePage() {
       >
         <div className="info-user">
           <div className="info-user-img">
-            <img
-              src={account.avatar}
-              alt="avatar"
-            />
+            <img src={account.avatar} alt="avatar" />
           </div>
           <div className="info-user-name">{account.user_name}</div>
+
           
           <Card 
 
@@ -276,6 +385,7 @@ function HomePage() {
                 <div><Text>{customDate(account.birth_day)}</Text></div>
               </Col>
             </Row>
+
           </Card>
           <div style={{width: '100%', height: "50px"}}></div>
           <Button onClick={()=> {dispatch(closeModelAcountUser()) ;dispatch(showModalUpdateAccount()); }} size='small' type="primary">
@@ -335,6 +445,7 @@ function HomePage() {
         header={null}
         className="video-call"
         width={400}
+        style={{ borderRadius: "50px" }}
       >
         <div>
           <div className="caller">
@@ -350,8 +461,8 @@ function HomePage() {
                 textAlign: "center",
               }}
             >
-              {/* <b>{videoName}</b> */}
-              <b>Nguyễn Hải Nam</b>
+              <b>{videoName}</b>
+              {/* <b>Nguyễn Hải Nam</b> */}
             </h5>
             <div
               style={{
@@ -398,6 +509,63 @@ function HomePage() {
               >
                 <PhoneFilled />
               </Button>
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        title="Tạo nhóm"
+        open={modalCreateGroup}
+        //onOk={handleOk_modelAddFriend}
+        onCancel={handleCancel_ModalCreateGroup}
+        footer={[
+          <Button key="back" onClick={handleCancel_ModalCreateGroup}>
+            Hủy
+          </Button>,
+          <Button
+            key="submit"
+            style={{ backgroundColor: "#468bff", color: "white" }}
+            onClick={createGroup}
+          >
+            Tạo nhóm
+          </Button>,
+        ]}
+      >
+        <div className="create-group">
+          <div className="create-group-name">
+            <Input
+              placeholder="Nhập tên nhóm"
+              type="text"
+              value={txt_name_group}
+              onChange={(e) => {
+                setTxt_name_group(e.target.value);
+              }}
+            ></Input>
+          </div>
+          <div className="create-group-add-friend">
+            <p>Danh sách bạn bè vào nhóm</p>
+            <div className="list-add">
+              {list_friend_group.map((user, index) => (
+                <div className="list-add-user" key={index}>
+                  {user.name}
+                </div>
+              ))}
+            </div>
+            <p>Tìm kiếm bạn bè</p>
+            <div className="search-user">
+              <Form className="form-search">
+                <Input
+                  placeholder="Tìm kiếm bạn bè"
+                  type="text"
+                  value={txt_search}
+                  onChange={(e) => {
+                    setTxt_Search(e.target.value);
+                    handleGetListSearch(e.target.value);
+                  }}
+                />
+              </Form>
+              <div className="search-user-list">{rederListUser()}</div>
             </div>
           </div>
         </div>
