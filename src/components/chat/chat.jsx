@@ -59,7 +59,7 @@ function Chat({ socket }) {
     socket.on("getMessage", (data) => {
       const mess = createMess(
         data.text,
-        "text",
+        data.content_type,
         false,
         data.senderId,
         data.nick_name,
@@ -78,6 +78,7 @@ function Chat({ socket }) {
       const params = {
         sender_id: _id,
         conversation_id: chatAcount.conversation_id,
+        content_type: message.content_type,
         text: message.content,
       };
       const response = await messageAPI.sendMessage(params);
@@ -86,6 +87,7 @@ function Chat({ socket }) {
         receiverId: chatAcount.receiver_id,
         nick_name: chatAcount.user_nick_name,
         text: message.content,
+        content_type: message.content_type,
         avatar: message.sender.avatar,
       });
       _setListMessage((_listMessage) => [message, ..._listMessage]);
@@ -144,7 +146,6 @@ function Chat({ socket }) {
     var befor_date = "";
     _listMessage.map((mess, index) => {
       if (index === 0) {
-        console.log(mess);
         _ListMess.push(
           <ChatItem
             key={index}
@@ -191,11 +192,6 @@ function Chat({ socket }) {
     return _ListMess;
   };
 
-  // const handleOneBlur = () => {
-  //   let _text = document.getElementById("mess-text").innerHTML;
-  //   if (_text.trim() === "") setValue("");
-  // };
-
   const handleVideoCall = () => {
     const y = window.top.outerHeight / 2 + window.top.screenY - 500 / 1.5;
     const x = window.top.outerWidth / 2 + window.top.screenX - 900 / 2;
@@ -232,18 +228,6 @@ function Chat({ socket }) {
     }
   };
 
-  const PostFileToS3 = async (img) => {
-    try {
-      const params = {
-        img: img,
-      };
-      const response = await S3API.sendFile(params);
-      console.log(response);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   const handleUpLoadFile = (e) => {
     const listFile_size = e.target.files.length;
     for (var i = 0; i < listFile_size; i++) {
@@ -251,14 +235,22 @@ function Chat({ socket }) {
       const formData = new FormData();
       formData.append("img", e.target.files[i]);
       axios
-        .put("http://localhost:8083/upload", formData, {
+        .put("https://codejava-app-anime.herokuapp.com/upload", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
           mode: "no-cors",
         })
         .then(function (response) {
-          console.log(response);
+          const mess = createMess(
+            response.data.pathVideo,
+            "image",
+            false,
+            _id,
+            chatAcount.user_nick_name,
+            account.avatar
+          );
+          handleSendMessage(mess);
         })
         .catch(function () {
           console.log("FAILURE!!");

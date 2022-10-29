@@ -41,10 +41,6 @@ function SideBar({ socket }) {
   const dispatch = useDispatch();
   const href_now = window.location.pathname.split("/")[2];
 
-  // useEffect(() => {
-  //   console.log(chooseItem);
-  // }, [chooseItem]);
-
   useEffect(() => {
     if (href_now === "list-friend") {
       setChooseItem("btn-friend");
@@ -55,14 +51,6 @@ function SideBar({ socket }) {
   useEffect(() => {
     setChooseConver(chatAcount.conversation_id);
   }, [chatAcount]);
-
-  // useEffect(() => {
-  //   console.log(chooseFriend);
-  // }, [chooseFriend]);
-
-  // useEffect(() => {
-  //   console.log(chooseConver);
-  // }, [chooseConver]);
 
   useEffect(() => {
     if (list_friend.length > 0) setSearch(false);
@@ -90,6 +78,7 @@ function SideBar({ socket }) {
   //---- hàm nhận tin nhắn từ socket gửi đến ----//
   useEffect(() => {
     const changeConver = () => {
+      console.log("vooooo");
       handleGetConversations(account._id);
     };
     socket.on("getMessage", changeConver);
@@ -147,7 +136,11 @@ function SideBar({ socket }) {
             // name={user.name}
             name={conver.receiver.nick_name}
             avatar="asdasd"
-            content={conver.last_message.content}
+            content={
+              conver.last_message.content_type === "image"
+                ? " Tin nhắn hình ảnh "
+                : conver.last_message.content
+            }
             lastMess={changeCreate(conver.last_message.createdAt)}
           ></MessageItem>
         );
@@ -227,12 +220,10 @@ function SideBar({ socket }) {
     } else if (key === "btn-message") {
       setSearch(true);
       setTxt_Search("");
+      handleGetConversations(account._id);
       changeAcountbyChooseMessage(chooseMessage);
     } else if (key === "btn-user") {
       dispatch(showModelAcountUser());
-      // setSearch(true);
-      // setTxt_Search("");
-      // changeAcountbyChooseMessage(chooseMessage);
     } else if (key === "btn-notifi") {
       setSearch(true);
       setTxt_Search("");
