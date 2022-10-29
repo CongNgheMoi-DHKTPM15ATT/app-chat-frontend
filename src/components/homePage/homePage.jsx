@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { Button, Col, Form, Input, Modal, Row, Card } from "antd";
+
+import { Button, Col, Form, Input, Modal, Row, Card, Typography, Collapse, List, Popover, DatePicker } from "antd";
+
 import { Link, useNavigate, Routes, Route, Navigate } from "react-router-dom";
 import SideBar from "../sideBar/sidebar";
 import Chat from "../chat/chat";
@@ -9,8 +11,13 @@ import { setAccount } from "../../slide/userSlide";
 import { setChatAccount } from "../../slide/chatSlide";
 import { createConversations } from "../../slide/conversationSlide";
 import ListFriend from "../listFriend/listFriend";
-import { PhoneFilled } from "@ant-design/icons";
+import moment from 'moment';
 
+import { PhoneFilled, EditOutlined } from "@ant-design/icons";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCameraRetro } from '@fortawesome/free-solid-svg-icons';
+
+import { customDate } from "../../utils/customDate";
 import {
   addUser,
   closeModelAddFriend,
@@ -18,12 +25,16 @@ import {
 } from "../../slide/modalAddFriendSlide";
 import userAPI from "../../api/userAPI";
 import { closeModelAcountUser } from "../../slide/modelAcountSlide";
+import { closeModalUpdateAccount, showModalUpdateAccount } from "../../slide/modalUpdateAccountSlide";
 import { setVideoCallAccount } from "../../slide/videoCallSlide";
 import { io } from "socket.io-client";
 import audios from "../../assets/audio/audios";
 import { closeModalCreateGroup } from "../../slide/modalCreateGroup";
 import ConversationAPI from "../../api/conversationAPI";
 // import sound_videoCall from "./audio_zalo.mp3";
+
+const { Title, Paragraph, Text } = Typography;
+const { Panel } = Collapse;
 
 const socket = io(process.env.REACT_APP_SOCKET_URL);
 
@@ -36,6 +47,11 @@ function HomePage() {
   const modelAcountUser = useSelector(
     (state) => state.modelAcountUser.openModal
   );
+
+  const modalUpdateAccount = useSelector(
+    (state) => state.modalUpdateAccount.openModal
+  );
+
   const modelLogout = useSelector((state) => state.modalLogout.openModal);
   const modelAddFriend = useSelector((state) => state.modelAddFriend.openModal);
   const modelAddFriend_user = useSelector(
@@ -145,6 +161,11 @@ function HomePage() {
   const handleCancel_modelAcountUser = () => {
     dispatch(closeModelAcountUser());
   };
+
+  const handleCancel_modalUpdateAccount = () => {
+    dispatch(closeModalUpdateAccount());
+  };
+
   const handleOk_modelAddFriend = () => {
     sendRequestAddFriend(account._id, modelAddFriend_user);
     dispatch(closeModelAddFriend());
@@ -174,6 +195,7 @@ function HomePage() {
     console.log("cancel");
     dispatch(closeModalLogout());
   };
+
 
   const handleGetListSearch = async (text) => {
     try {
@@ -304,9 +326,11 @@ function HomePage() {
             <img src={userGetById.avatar} alt="avatar" />
           </div>
           <div className="info-user-name">{userGetById.user_name}</div>
+
           <Card title="Card title">
             <div className="info-user-date">{userGetById.birth_day}</div>
           </Card>
+
         </div>
 
         <div className="modal-addfriend-footer">
@@ -333,28 +357,83 @@ function HomePage() {
         onCancel={handleCancel_modelAcountUser}
         className="modal-modelAcountUser"
         footer={null}
+        style={{overflow: "hidden",}}
       >
         <div className="info-user">
           <div className="info-user-img">
             <img src={account.avatar} alt="avatar" />
           </div>
           <div className="info-user-name">{account.user_name}</div>
-          <div className="info-user-label">phone</div>
-          <Card title="Thông tin cá nhân" bordered={false}>
-            <Row gutter={16}>
-              <Col span={8}>
-                <div className="">{account.phone}</div>
+
+          
+          <Card 
+
+            title="Thông tin cá nhân" 
+            bordered={false}>
+            <Row gutter={[16,10]}>
+              <Col span={12}>
+                <div><Text strong>Phone</Text></div>
               </Col>
-            </Row>
-            <Row gutter={16}>
-              <Col span={10}></Col>
-              <Col span={14}>
-                <div className="info-user-phone">{account.phone}</div>
+              <Col span={12}>
+                <div><Text>{account.phone}</Text></div>
+              </Col>
+
+              <Col span={12}>
+                <div><Text strong>Birthday</Text></div>
+              </Col>
+              <Col span={12}>
+                <div><Text>{customDate(account.birth_day)}</Text></div>
               </Col>
             </Row>
 
-            <div className="info-user-birthday">{account.birth_day}</div>
           </Card>
+          <div style={{width: '100%', height: "50px"}}></div>
+          <Button onClick={()=> {dispatch(closeModelAcountUser()) ;dispatch(showModalUpdateAccount()); }} size='small' type="primary">
+            <EditOutlined />Cập nhật thông tin
+          </Button>
+        </div>
+      </Modal>
+
+      <Modal
+        title="Cập nhật thông tin cá nhân"
+        open={modalUpdateAccount}
+        //onOk={handleOk_modelAddFriend}
+        onCancel={handleCancel_modalUpdateAccount}
+        className="modal-modalUpdateAccount"
+        footer={null}
+        style={{overflow: "hidden",}}
+      >
+        <div className="info-update-user">
+          <div className="info-update-user-img">
+            <img
+              src={account.avatar}
+              alt="avatar"
+              />
+            < FontAwesomeIcon className = "icon-camera" size="lg" icon = { faCameraRetro }/>
+          </div>
+          <Form
+            labelCol={{ span: 7 }}
+            wrapperCol={{ span: 14 }}
+            layout="horizontal"
+          >
+            <Form.Item label="User Name">
+              <Input value={account.user_name}/>
+            </Form.Item>
+            <Form.Item label="Email">
+              <Input value={account.email}/>
+            </Form.Item>
+            <Form.Item label="Số điện thoại">
+              <Input value={account.phone}/>
+            </Form.Item>
+            <Form.Item label="Sinh nhật">
+              <DatePicker format={'DD/MM/YYYY'} defaultValue={moment(customDate(account.birth_day), 'DD/MM/YYYY')}/>
+            </Form.Item>
+            <div>
+              <Button>Cập nhật thông tin</Button>
+            </div>
+              
+
+          </Form>
         </div>
       </Modal>
 

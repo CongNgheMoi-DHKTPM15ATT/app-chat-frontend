@@ -1,4 +1,4 @@
-import { Button, Col, Form, Input, Row, Upload } from "antd";
+import { Button, Col, Form, Input, Row, Upload, Card, Typography, Collapse, List, } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import InputEmoji from "react-input-emoji";
 import {
@@ -17,6 +17,21 @@ import messageAPI from "../../api/messageAPI";
 import { useNavigate } from "react-router-dom";
 import { setVideoCallAccount } from "../../slide/videoCallSlide";
 import S3API from "../../api/s3API";
+import { showModelAcountUser } from "../../slide/modelAcountSlide";
+import { customDate } from "../../utils/customDate";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faUserGroup } from '@fortawesome/free-solid-svg-icons'
+
+const { Title, Paragraph, Text } = Typography;
+const { Panel } = Collapse;
+
+const actionReceiverRightBar = [{
+  title: 'Nhóm chung',
+  icon: < FontAwesomeIcon className = "right-tab-action-icon"
+  icon = { faUserGroup }
+  /> ,
+
+}, ];
 import audios from "../../assets/audio/audios";
 import axios from "axios";
 
@@ -27,6 +42,9 @@ function Chat({ socket }) {
   const [value, setValue] = useState("");
   const [rightTab, setRightTab] = useState(false);
   const [_listMessage, _setListMessage] = useState([]);
+
+  const [_listMessageImage, _setListMessageImage] = useState([])
+
   const [pendingMess, setPendingMess] = useState(null);
   const content = useRef("");
   const ngay_trong_tuan = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
@@ -41,6 +59,9 @@ function Chat({ socket }) {
   //---- hàm lấy toàn bộ tin nhắn khi có sự thay dổi người nhận tin nhắn ----//
   useEffect(() => {
     getAllMess(chatAcount.conversation_id);
+    if (rightTab) {
+      getAllMessByContentType(chatAcount.conversation_id, 'image');
+    }
   }, [chatAcount]);
 
   useEffect(() => {
@@ -53,6 +74,14 @@ function Chat({ socket }) {
     }
     setPendingMess(null);
   }, [pendingMess]);
+
+
+  useEffect(() => {
+    if (rightTab) {
+      getAllMessByContentType(chatAcount.conversation_id, 'image');
+    }
+
+  }, [rightTab]);
 
   //---- hàm nhận tin nhắn từ socket gửi đến ----//
   useEffect(() => {
@@ -121,6 +150,25 @@ function Chat({ socket }) {
     }
   };
 
+  const getAllMessByContentType = async (conver_id, type) => {
+    try {
+      const params = {
+        conversation_id: conver_id,
+        content_type: type
+      };
+      console.log(params)
+      _setListMessageImage([])
+      const response = await messageAPI.getAllMessageByContentType(params);
+      console.log(response);
+      if (response.length !== 0) {
+        _setListMessageImage(response);
+      }
+
+    } catch (error) {
+      console.log("Failed to call API get all message " + error);
+    }
+  }
+
   function renderLine(time) {
     const d = new Date(time);
     return (
@@ -136,6 +184,19 @@ function Chat({ socket }) {
         </p>
       </div>
     );
+  }
+
+  const renderListMessImage = () => {
+    const _listImg = []
+    if (_listMessageImage.length !== 0) {
+
+      _listMessageImage.map((mess, index) => {
+        _listImg.push(<img className="right-tab-filter-img-video" key={index} src="https://i.bloganchoi.com/bloganchoi.com/wp-content/uploads/2020/09/hinh-ve-de-thuong-696x696.jpg?fit=700%2C20000&quality=95&ssl=1" alt="img"/>);
+      })
+      return _listImg;
+    } else {
+      return (<div style={{textAlign: "center", width: '100%'}}>Hộp thoại thoại này chưa có hình ảnh/video</div>)
+    }
   }
 
   //---- hàm render toàn bộ tin nhắn ----//
@@ -265,7 +326,13 @@ function Chat({ socket }) {
           <div className="chat-header">
             <div className="chat-header-info">
               <div className="chat-header-info-img">
-                <img src={chatAcount.avatar} alt="avatar" />
+
+                <img
+                  onClick={showModelAcountUser()}
+                  src={chatAcount.avatar}
+                  alt="avatar"
+                />
+
               </div>
               <div className="chat-header-info-name">
                 <p>{chatAcount.receiver_nick_name}</p>
@@ -351,6 +418,61 @@ function Chat({ socket }) {
               <div className="right-tab-header">
                 <p>Thông tin hội thoại</p>
               </div>
+
+              <div className="right-tab-infor-img">
+                <img
+                  src={chatAcount.avatar}
+                  alt="avatar"
+                />
+              </div>
+              <div className="right-tab-user-name">{chatAcount.receiver_nick_name}</div>
+
+
+              <div className="right-tab-line-divide"></div>
+
+              
+              <List
+                itemLayout="horizontal"
+                dataSource={actionReceiverRightBar}
+                renderItem={item => (
+                  <List.Item className="right-tab-ant-list-item" style={{ width: "100%", cursor: "pointer", justifyContent: "flex-start"}}>
+                    {item.icon}
+                    <Text style={{}}>{item.title}</Text>
+                    
+                  </List.Item>
+                )}
+              />
+
+              <div style={{ marginTop: "0px"}} className="right-tab-line-divide"></div>
+
+              <Collapse defaultActiveKey={['1']} bordered={false}>
+                <Panel showArrow={true} style={{backgroundColor: "#FFFFFF"}} header={<Title level={5}>Ảnh / Video</Title>} key="1">
+                  <Row gutter={[0, 24]}>
+                    {renderListMessImage()}
+                  </Row>
+                </Panel>
+              </Collapse>
+
+              <div className="right-tab-line-divide"></div>
+
+              <Collapse style={{magrinBottom: "5px",}} defaultActiveKey={['1']} bordered={false}>
+                <Panel showArrow={true} style={{backgroundColor: "#FFFFFF"}} header={<Title level={5}>Files</Title>} key="1">
+                  <Row gutter={[0, 24]}>
+                    Chưa có chức năng này thông cảm !
+                  </Row>
+                </Panel>
+              </Collapse>
+
+              <div className="right-tab-line-divide"></div>
+
+              <Collapse defaultActiveKey={['1']} bordered={false}>
+                <Panel showArrow={true} style={{backgroundColor: "#FFFFFF"}} header={<Title level={5}>Links</Title>} key="1">
+                  <Row gutter={[0, 24]}>
+                    Chưa có chức năng này thông cảm !
+                  </Row>
+                </Panel>
+              </Collapse>
+
             </div>
           </Col>
         ) : (
