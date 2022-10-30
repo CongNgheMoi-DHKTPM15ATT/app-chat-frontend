@@ -30,3 +30,17 @@
 
 //---- Video Call ----//
 @import "../../components/videoCall/videoCall.scss";
+
+//---- Modal ----//
+//---- Modal Logout ----//
+@import "../../components/Modal/logoutModal/logoutModal.scss";
+//---- Modal Info Account User----//
+@import "../../components/Modal/infoAccountModal/infoAccountModal.scss";
+//---- Modal Info User ----//
+@import "../../components/Modal/infoUserModal/infoUserModal.scss";
+//---- Modal Video Call ----//
+@import "../../components/Modal/videoCallModal/videoCallModal.scss";
+//---- Modal Update Info Account ----//
+@import "../../components/Modal/updateInfoAccount/updateInfoAccount.scss";
+//---- Modal Create group ----//
+@import "../../components/Modal/createGroupModal/createGroupModal.scss";

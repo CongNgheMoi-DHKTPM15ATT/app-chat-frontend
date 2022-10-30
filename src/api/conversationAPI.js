@@ -13,6 +13,10 @@ const ConversationAPI = {
     const url = "/conversation/create-group";
     return axiosClient.post(url, params);
   },
+  getGroupConversationsById: (params) => {
+    const url = "/conversation/group";
+    return axiosClient.post(url, params);
+  },
 };
 
 export default ConversationAPI;
