@@ -168,7 +168,6 @@ function Chat({ socket }) {
       console.log(params);
       _setListMessageImage([]);
       const response = await messageAPI.getAllMessageByContentType(params);
-      console.log(response);
       if (response.length !== 0) {
         _setListMessageImage(response);
       }
@@ -202,7 +201,7 @@ function Chat({ socket }) {
           <img
             className="right-tab-filter-img-video"
             key={index}
-            src="https://i.bloganchoi.com/bloganchoi.com/wp-content/uploads/2020/09/hinh-ve-de-thuong-696x696.jpg?fit=700%2C20000&quality=95&ssl=1"
+            src={mess.content}
             alt="img"
           />
         );
@@ -399,21 +398,8 @@ function Chat({ socket }) {
                   />
                   <FileAddFilled className="toolbar-icon" />
                 </label>
-                {/* <input
-                  type="file"
-                  name="file"
-                  onChange={handleUpLoadFile}
-                  multiple
-                  className="custom-file-input"
-                  style={{ visibility: "hidden" }}
-                /> */}
-                {/* <FileAddFilled
-                  className="toolbar-icon"
-                  onClick={handleClickChooseFile}
-                /> */}
               </Form.Item>
               <Form.Item className="chat-footer-input-action">
-                {/* <Button htmlType="submit" className="action-icon"><SendOutlined /></Button> */}
                 {value !== "" ? (
                   <Button className="action-icon" onClick={handleEmitMessage}>
                     {/* Gửi */}
@@ -491,7 +477,11 @@ function Chat({ socket }) {
                   header={<Title level={5}>Files</Title>}
                   key="1"
                 >
-                  <Row gutter={[0, 24]}>Chưa có chức năng này thông cảm !</Row>
+                  <Row gutter={[0, 24]}>
+                    <div style={{ textAlign: "center", width: "100%" }}>
+                      Chức năng đang hoàn thiện !!
+                    </div>
+                  </Row>
                 </Panel>
               </Collapse>
 
@@ -504,7 +494,11 @@ function Chat({ socket }) {
                   header={<Title level={5}>Links</Title>}
                   key="1"
                 >
-                  <Row gutter={[0, 24]}>Chưa có chức năng này thông cảm !</Row>
+                  <Row gutter={[0, 24]}>
+                    <div style={{ textAlign: "center", width: "100%" }}>
+                      Chức năng đang hoàn thiện !!
+                    </div>
+                  </Row>
                 </Panel>
               </Collapse>
             </div>
