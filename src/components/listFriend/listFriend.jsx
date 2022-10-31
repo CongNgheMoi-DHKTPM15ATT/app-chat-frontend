@@ -31,16 +31,60 @@ function ListFriend({ socket }) {
     }
   };
 
-  const handleConfirmRequest = async (receiver_id) => {
+  const handleRemoveFriend = async (receiver_id) => {
     const params = {
       user_id: account._id,
       receiver_id: receiver_id,
-      is_accept: true,
+    };
+    try {
+      const response = await userAPI.removeFriend(params);
+      if (response.success) {
+        socket.emit("loadConver", { sender_id: account._id });
+        socket.emit("requestLoadConver", { user: [receiver_id] });
+        handleGetListPending("friended");
+      }
+    } catch (error) {
+      console.log("Fail when call API confirm request");
+    }
+  };
+
+  const handleCancelRequest = async (receiver_id) => {
+    const params = {
+      user_id: account._id,
+      receiver_id: receiver_id,
+    };
+    try {
+      const response = await userAPI.cancelRequest(params);
+      if (response) handleGetListPending("pending");
+    } catch (error) {
+      console.log("Fail when call API confirm request");
+    }
+  };
+
+  const handleBlockFriend = async (receiver_id) => {
+    const params = {
+      user_id: account._id,
+      receiver_id: receiver_id,
+    };
+    try {
+      const response = await userAPI.blockFriend(params);
+      if (response) handleGetListPending("friended");
+    } catch (error) {
+      console.log("Fail when call API confirm request");
+    }
+  };
+
+  const handleConfirmRequest = async (receiver_id, status) => {
+    const params = {
+      user_id: account._id,
+      receiver_id: receiver_id,
+      is_accept: status,
     };
     try {
       const response = await userAPI.sendConfirmRequest(params);
-      if (response === "Now! You already have a new friend") {
-        handleCreateConversation(receiver_id);
+      if (response) {
+        if (status) handleCreateConversation(receiver_id);
+        else handleGetListPending("accepting");
       }
       console.log(response);
     } catch (error) {
@@ -62,7 +106,8 @@ function ListFriend({ socket }) {
           content_type: "notification",
         });
         socket.emit("loadConver", { sender_id: account._id });
-        handleGetListPending();
+        socket.emit("requestLoadConver", { user: [receiver_id] });
+        handleGetListPending("accepting");
       }
     } catch (error) {
       console.log("Fail when call API create conversation");
@@ -204,12 +249,17 @@ function ListFriend({ socket }) {
           </div>
           <div className="user-card-button button-friend">
             <button
-              onClick={() => handleConfirmRequest(props.user._id)}
+              onClick={() => handleRemoveFriend(props.user._id)}
               className="btn-primary"
             >
               Hủy trò chuyện
             </button>
-            <button className="btn-danger">Chặn</button>
+            <button
+              className="btn-danger"
+              onClick={() => handleBlockFriend(props.user._id)}
+            >
+              Chặn
+            </button>
           </div>
         </div>
       </Col>
@@ -230,12 +280,17 @@ function ListFriend({ socket }) {
           </div>
           <div className="user-card-button button-friend">
             <button
-              onClick={() => handleConfirmRequest(props.user._id)}
+              onClick={() => handleConfirmRequest(props.user._id, true)}
               className="btn-primary"
             >
               Đồng ý
             </button>
-            <button className="btn-danger">Từ chối</button>
+            <button
+              className="btn-danger"
+              onClick={() => handleConfirmRequest(props.user._id, false)}
+            >
+              Từ chối
+            </button>
           </div>
         </div>
       </Col>
@@ -255,7 +310,12 @@ function ListFriend({ socket }) {
             </div>
           </div>
           <div className="user-card-button button-friend">
-            <button className="btn-danger">Thu hồi</button>
+            <button
+              className="btn-danger"
+              onClick={() => handleCancelRequest(props.user._id)}
+            >
+              Thu hồi
+            </button>
           </div>
         </div>
       </Col>

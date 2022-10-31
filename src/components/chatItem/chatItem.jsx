@@ -45,6 +45,33 @@ function ChatItem(prop) {
     new Date(prop.createdAt).getHours() +
     ":" +
     new Date(prop.createdAt).getMinutes();
+
+
+  const renderImage = () => {
+    const list_file = prop.content.split("&%&");
+    var list = [];
+    var tmp = list_file.length;
+    var check = (list_file.length - 1) % 2 === 1 ? true : false;
+    list_file.map((url, index) => {
+      if (url) {
+        if (list_file.length === 1 || (tmp === 2 && check))
+          list.push(
+            <Col span={24} style={{ margin: "2px" }}>
+              <img className="image-content" src={url} alt="image" />
+            </Col>
+          );
+        else
+          list.push(
+            <Col span={11} style={{ margin: "2px" }}>
+              <img className="image-content" src={url} alt="image" />
+            </Col>
+          );
+      }
+      tmp -= 1;
+    });
+    return list;
+  };
+
   const openOptional = (e) => {
     console.log("vào vào")
     setItemOption(e.target.closest('.chat-item').querySelector('.chat-item-option'))
@@ -73,6 +100,7 @@ function ChatItem(prop) {
       />
     )
   }
+
   return (
       <div className="chatItem">
       {prop.content_type === "notification" ? (
@@ -116,12 +144,13 @@ function ChatItem(prop) {
               content_type={prop.content_type}
             >
               {prop.content_type === "image" ? (
-                <img className="image-content" src={prop.content} alt="image" />
+                <Row justify="space-evenly">{renderImage()}</Row>
               ) : (
                 prop.content
               )}
             </div>
             <p className="chat-item-time">{time}</p>
+            <p className="chat-item-action">...</p>
           </div>
 
 

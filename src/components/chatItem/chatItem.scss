@@ -91,12 +91,12 @@
         width: 100%;
         height: 96%;
         margin: 2% 0;
-        border-radius: 20px;
       }
     }
 
     &-content[content_type="image"] {
-      max-width: 25%;
+      max-width: 35%;
+      // max-height: 450px;
     }
 
     &-content-right {
@@ -139,6 +139,15 @@
         color: #e4e6eb;
       }
 
+    }
+    &-action {
+      height: 1.6em;
+      padding: 0 10px;
+      font-size: 1em;
+      border-radius: 20px;
+      background-color: #030303ad;
+      color: #e4e6eb;
+      opacity: 0;
     }
 
     &-content:hover~.chat-item-option {
