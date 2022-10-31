@@ -17,6 +17,14 @@ const ConversationAPI = {
     const url = "/conversation/group";
     return axiosClient.post(url, params);
   },
+  addMemberGroup: (params) => {
+    const url = "/group/add-mems";
+    return axiosClient.post(url, params);
+  },
+  outMemberGroup: (params) => {
+    const url = "/group/remove-mem";
+    return axiosClient.post(url, params);
+  },
 };
 
 export default ConversationAPI;

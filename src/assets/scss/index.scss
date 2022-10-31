@@ -31,6 +31,9 @@
 //---- Video Call ----//
 @import "../../components/videoCall/videoCall.scss";
 
+//---- list Group ----//
+@import "../../components/listGroup/listGroup.scss";
+
 //---- Modal ----//
 //---- Modal Logout ----//
 @import "../../components/Modal/logoutModal/logoutModal.scss";
@@ -44,3 +47,5 @@
 @import "../../components/Modal/updateInfoAccount/updateInfoAccount.scss";
 //---- Modal Create group ----//
 @import "../../components/Modal/createGroupModal/createGroupModal.scss";
+//---- Modal add user group ----//
+@import "../../components/Modal/addUserGroupModal/addUserGroupModal.scss";

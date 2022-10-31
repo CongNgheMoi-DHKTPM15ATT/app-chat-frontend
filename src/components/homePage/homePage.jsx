@@ -13,6 +13,8 @@ import ModalVideoCall from "../Modal/videoCallModal/videoCallModal";
 import ModalUpdateInfoAccount from "../Modal/updateInfoAccount/updateInfoAccount";
 import ModalCreateGroup from "../Modal/createGroupModal/createGroupModal";
 import ConversationAPI from "../../api/conversationAPI";
+import ModalAddUserGroup from "../Modal/addUserGroupModal/addUserGroupModal";
+import ListGroup from "../listGroup/listGroup";
 
 const socket = io(process.env.REACT_APP_SOCKET_URL);
 
@@ -61,6 +63,16 @@ function HomePage() {
             }
           ></Route>
           <Route
+            path="/list-group"
+            element={
+              <PrivateRoute>
+                <Col span={18}>
+                  <ListGroup socket={socket} />
+                </Col>
+              </PrivateRoute>
+            }
+          ></Route>
+          <Route
             path="/message"
             element={
               <PrivateRoute>
@@ -78,7 +90,8 @@ function HomePage() {
       <ModalInfoUser />
       <ModalVideoCall socket={socket} />
       <ModalUpdateInfoAccount />
-      <ModalCreateGroup />
+      <ModalCreateGroup socket={socket} />
+      <ModalAddUserGroup socket={socket} />
     </div>
   );
 }

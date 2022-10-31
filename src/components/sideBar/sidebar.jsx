@@ -44,7 +44,13 @@ function SideBar({ socket }) {
   useEffect(() => {
     if (href_now === "list-friend") {
       setChooseItem("btn-friend");
+      setChooseFriend(0);
     } else if (href_now === "message") setChooseItem("btn-message");
+    else if (href_now === "list-group") {
+      setChooseItem("btn-friend");
+      setChooseFriend(1);
+    }
+
     handleGetConversations(account._id);
   }, []);
 
@@ -65,6 +71,8 @@ function SideBar({ socket }) {
         user_nick_name: conversations[0].nick_name,
         receiver_nick_name: conversations[0].receiver.nick_name,
         avatar: conversations[0].receiver.avatar,
+        is_group: conversations[0].is_group,
+        member: conversations[0].receiver.members,
       });
       dispatch(action);
       setChooseMessage(0);
@@ -78,7 +86,6 @@ function SideBar({ socket }) {
   //---- hàm nhận tin nhắn từ socket gửi đến ----//
   useEffect(() => {
     const changeConver = () => {
-      console.log("vooooo");
       handleGetConversations(account._id);
     };
     socket.on("getMessage", changeConver);
@@ -93,9 +100,8 @@ function SideBar({ socket }) {
       };
       const response = await ConversationAPI.getConversationsById(params);
       const action = createConversations(response.conversations);
-      console.log(response);
-      dispatch(action);
       console.log(response.conversations);
+      dispatch(action);
     } catch (error) {
       console.log("Failed to call API get Conversations By Id " + error);
     }
@@ -161,13 +167,15 @@ function SideBar({ socket }) {
             <span>Danh sách bạn bè</span>
           </div>
         </Link>
-        <div
-          className={"tag-Friend " + (chooseFriend == 1 ? "active" : "")}
-          onClick={() => setChooseFriend(1)}
-        >
-          <UnorderedListOutlined />
-          <span>Danh sách nhóm</span>
-        </div>
+        <Link to="/home/list-group">
+          <div
+            className={"tag-Friend " + (chooseFriend == 1 ? "active" : "")}
+            onClick={() => setChooseFriend(1)}
+          >
+            <UnorderedListOutlined />
+            <span>Danh sách nhóm</span>
+          </div>
+        </Link>
         <div
           className={"tag-Friend " + (chooseFriend == 2 ? "active" : "")}
           onClick={() => {
@@ -247,6 +255,8 @@ function SideBar({ socket }) {
             user_nick_name: conversations[props.id].nick_name,
             receiver_nick_name: conversations[props.id].receiver.nick_name,
             avatar: conversations[props.id].receiver.avatar,
+            is_group: conversations[props.id].is_group,
+            member: conversations[props.id].receiver.members,
           });
           dispatch(action);
         }}
@@ -274,6 +284,8 @@ function SideBar({ socket }) {
       user_nick_name: conversations[index].nick_name,
       receiver_nick_name: conversations[index].receiver.nick_name,
       avatar: conversations[index].receiver.avatar,
+      is_group: conversations[index].is_group,
+      member: conversations[index].receiver.members,
     });
     dispatch(action);
   };
@@ -288,7 +300,7 @@ function SideBar({ socket }) {
             const action = setChatAccount({
               receiver_id: props.user._id,
               conversation_id: props.user.conversation,
-              user_nick_name: account._id,
+              user_nick_name: account.user_name,
               receiver_nick_name: props.user.nick_name,
               avatar: props.user.avatar,
             });
@@ -329,6 +341,7 @@ function SideBar({ socket }) {
       );
     }
     list_friend.map((user, index) => {
+      console.log(user);
       if (user.status !== "BLOCK") {
         render_list_friend.push(
           <UserItem key={index} id={index} user={user}></UserItem>
