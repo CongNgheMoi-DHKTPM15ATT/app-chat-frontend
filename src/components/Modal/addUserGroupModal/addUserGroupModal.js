@@ -3,43 +3,37 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ConversationAPI from "../../../api/conversationAPI";
 import userAPI from "../../../api/userAPI";
-import { closeModalCreateGroup } from "../../../slide/modalCreateGroup";
+import { closeModalAddUserGroup } from "../../../slide/modalAddUserGroup";
 
-function ModalCreateGroup({ socket }) {
+function ModalAddUserGroup({ socket }) {
   const account = useSelector((state) => state.account.account);
+  const chatAccount = useSelector((state) => state.chat.account);
   const [list_friend_group, setList_friend_group] = useState([]);
-  const [txt_name_group, setTxt_name_group] = useState("");
   const [list_friend, setList_friend] = useState([]);
   const [txt_search, setTxt_Search] = useState("");
-  const modalCreateGroup = useSelector(
-    (state) => state.modalCreateGroup.openModal
+  const modalAddUserGroup = useSelector(
+    (state) => state.modalAddUserGroup.openModal
   );
+
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    console.log(chatAccount);
+  }, [chatAccount]);
 
   useEffect(() => {
     handleGetListSearch(txt_search);
   }, [list_friend_group]);
 
-  const handleCancel_ModalCreateGroup = () => {
-    setList_friend_group([]);
-    dispatch(closeModalCreateGroup());
-  };
-  const createGroup = async () => {
-    var tmp = [account._id];
-    list_friend_group.map((user) => {
-      tmp.push(user.id);
-    });
-    const params = { group_name: txt_name_group, user_id: tmp };
-    console.log(params);
+  useEffect(() => {
+    console.log(list_friend);
+  }, [list_friend]);
 
-    try {
-      const response = await ConversationAPI.createGroupConversation(params);
-      socket.emit("addGroup", { senderId: account._id, groups: [response] });
-      socket.emit("requestLoadConver", { user: tmp });
-      handleCancel_ModalCreateGroup();
-    } catch (error) {
-      console.log("Fail when axios API get user by ID: " + error);
-    }
+  const handleCancel_ModalAddUserGroup = () => {
+    setTxt_Search("");
+    setList_friend([]);
+    setList_friend_group([]);
+    dispatch(closeModalAddUserGroup());
   };
 
   const handleGetListSearch = async (text) => {
@@ -51,12 +45,33 @@ function ModalCreateGroup({ socket }) {
       const response = await userAPI.searchUser(params);
       setList_friend([]);
       response.map((user) => {
-        console.log(list_friend_group.findIndex((u) => u.id === user._id));
-        if (list_friend_group.findIndex((u) => u.id === user._id) === -1)
+        // console.log(chatAccount.member.findIndex((u) => u._id === user._id));
+        if (
+          list_friend_group.findIndex((u) => u.id === user._id) === -1 &&
+          chatAccount.member.findIndex((u) => u._id === user._id) === -1
+        )
           setList_friend((list_friend) => [user, ...list_friend]);
       });
     } catch (error) {
       console.log("Failed to call API get list search" + error);
+    }
+  };
+
+  const handleAddMember = async () => {
+    try {
+      var tmp = [account._id];
+      list_friend_group.map((user) => {
+        tmp.push(user.id);
+      });
+      const params = {
+        conversation_id: chatAccount.conversation_id,
+        user_id: tmp,
+      };
+      const response = await ConversationAPI.addMemberGroup(params);
+      socket.emit("requestLoadConver", { user: tmp });
+      handleCancel_ModalAddUserGroup();
+    } catch (error) {
+      console.log("fail when add member into group");
     }
   };
 
@@ -109,33 +124,23 @@ function ModalCreateGroup({ socket }) {
 
   return (
     <Modal
-      title="Tạo nhóm"
-      open={modalCreateGroup}
-      onCancel={handleCancel_ModalCreateGroup}
+      title="Thêm thành viên"
+      open={modalAddUserGroup}
+      onCancel={handleCancel_ModalAddUserGroup}
       footer={[
-        <Button key="back" onClick={handleCancel_ModalCreateGroup}>
+        <Button key="back" onClick={handleCancel_ModalAddUserGroup}>
           Hủy
         </Button>,
         <Button
           key="submit"
           style={{ backgroundColor: "#468bff", color: "white" }}
-          onClick={createGroup}
+          onClick={handleAddMember}
         >
-          Tạo nhóm
+          Thêm thành viên
         </Button>,
       ]}
     >
       <div className="create-group">
-        <div className="create-group-name">
-          <Input
-            placeholder="Nhập tên nhóm"
-            type="text"
-            value={txt_name_group}
-            onChange={(e) => {
-              setTxt_name_group(e.target.value);
-            }}
-          ></Input>
-        </div>
         <div className="create-group-add-friend">
           <p>Danh sách bạn bè vào nhóm</p>
           <div className="list-add">
@@ -165,4 +170,4 @@ function ModalCreateGroup({ socket }) {
     </Modal>
   );
 }
-export default ModalCreateGroup;
+export default ModalAddUserGroup;

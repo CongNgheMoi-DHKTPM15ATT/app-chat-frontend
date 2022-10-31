@@ -1,6 +1,18 @@
 .chatItem {
   width: 100%;
   // background-color: antiquewhite;
+  &-nameSenderLeft {
+    text-align: left;
+    margin-left: 5vh;
+    padding: 0 10px;
+    margin-top: 20px;
+  }
+  &-nameSenderRight {
+    text-align: right;
+    margin-right: 5vh;
+    padding: 0 10px;
+    display: none;
+  }
   .chatItem-notification {
     width: 100%;
     margin: 2px;
@@ -36,6 +48,7 @@
 
       img {
         height: 5vh;
+        width: 5vh;
         border-radius: 50%;
         border: 0.1px solid #d2d2d2;
       }
