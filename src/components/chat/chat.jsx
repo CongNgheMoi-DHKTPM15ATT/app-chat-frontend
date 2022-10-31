@@ -18,7 +18,7 @@ import {
   VideoCameraTwoTone,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  SmileTwoTone,
+  UserAddOutlined,
   FileAddFilled,
 } from "@ant-design/icons";
 import React, { useEffect, useRef, useState } from "react";
@@ -34,6 +34,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserGroup } from "@fortawesome/free-solid-svg-icons";
 import audios from "../../assets/audio/audios";
 import axios from "axios";
+import { showModalAddUserGroup } from "../../slide/modalAddUserGroup";
+import ConversationAPI from "../../api/conversationAPI";
 const { Title, Paragraph, Text } = Typography;
 const { Panel } = Collapse;
 
@@ -53,18 +55,12 @@ function Chat({ socket }) {
   const [value, setValue] = useState("");
   const [rightTab, setRightTab] = useState(false);
   const [_listMessage, _setListMessage] = useState([]);
-
   const [_listMessageImage, _setListMessageImage] = useState([]);
-
   const [pendingMess, setPendingMess] = useState(null);
   const content = useRef("");
   const ngay_trong_tuan = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
   const [__ListFileUpload, __SetListFileUpLoad] = useState([]);
-  const input_file = useRef(null);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const bottomRef = useRef(null);
-  const [image, setImage] = useState("");
   const audio_notification = new Audio(audios[1].src);
 
   //---- hàm lấy toàn bộ tin nhắn khi có sự thay dổi người nhận tin nhắn ----//
@@ -133,6 +129,27 @@ function Chat({ socket }) {
       console.log("Failed to call API send message" + error);
     }
   };
+  const handleOutGroup = async () => {
+    try {
+      const params = {
+        conversation_id: chatAcount.conversation_id,
+        user_id: account._id,
+      };
+      const mess = createMess(
+        chatAcount.user_nick_name + "  đã rời khỏi nhóm",
+        "notification",
+        false,
+        _id,
+        chatAcount.user_nick_name,
+        account.avatar
+      );
+      handleSendMessage(mess);
+      const response = await ConversationAPI.outMemberGroup(params);
+    } catch (error) {
+      console.log("Failed to call API out group" + error);
+    }
+  };
+
   //---- hàm tạo 1 đối tượng tin nhắn ----//
   function createMess(content, content_type, deleted, user_id, name, avatar) {
     const d = new Date();
@@ -165,7 +182,6 @@ function Chat({ socket }) {
         conversation_id: conver_id,
         content_type: type,
       };
-      console.log(params);
       _setListMessageImage([]);
       const response = await messageAPI.getAllMessageByContentType(params);
       if (response.length !== 0) {
@@ -192,6 +208,20 @@ function Chat({ socket }) {
       </div>
     );
   }
+
+  const renderListUserOfGroup = () => {
+    const _listUser = [];
+    if (chatAcount.member)
+      chatAcount.member.map((user) => {
+        _listUser.push(
+          <div style={{ width: "100%", textAlign: "left", marginLeft: "10px" }}>
+            {user.nick_name}
+          </div>
+        );
+      });
+
+    return _listUser;
+  };
 
   const renderListMessImage = () => {
     const _listImg = [];
@@ -221,8 +251,14 @@ function Chat({ socket }) {
     const _ListMess = [];
     var loadImg = "";
     var check = true;
+    var checkName = true;
     var befor_date = "";
     _listMessage.map((mess, index) => {
+      const tmp = _listMessage[index + 1];
+      if (tmp) {
+        console.log(mess);
+        if (tmp.sender.user_id === mess.sender.user_id) checkName = false;
+      }
       if (index === 0) {
         _ListMess.push(
           <ChatItem
@@ -231,10 +267,12 @@ function Chat({ socket }) {
             senderId={mess.sender.user_id}
             senderName={mess.sender.nick_name}
             loadImg={check}
+            loadName={checkName}
             createdAt={mess.createdAt}
             userID={_id}
             avatar={mess.sender.avatar}
             content_type={mess.content_type}
+            is_group={chatAcount.is_group}
           />
         );
         loadImg = mess.sender.user_id;
@@ -257,13 +295,16 @@ function Chat({ socket }) {
             senderId={mess.sender.user_id}
             senderName={mess.sender.nick_name}
             loadImg={check}
+            loadName={checkName}
             createdAt={mess.createdAt}
             userID={_id}
             content_type={mess.content_type}
             avatar={mess.sender.avatar}
+            is_group={chatAcount.is_group}
           />
         );
       }
+      checkName = true;
       check = false;
       befor_date = mess.createdAt;
     });
@@ -309,7 +350,6 @@ function Chat({ socket }) {
   const handleUpLoadFile = (e) => {
     const listFile_size = e.target.files.length;
     for (var i = 0; i < listFile_size; i++) {
-      console.log(e.target.files[i]);
       const formData = new FormData();
       formData.append("img", e.target.files[i]);
       axios
@@ -331,7 +371,7 @@ function Chat({ socket }) {
           handleSendMessage(mess);
         })
         .catch(function () {
-          console.log("FAILURE!!");
+          console.log("FAIL when upload img");
         });
     }
   };
@@ -354,11 +394,23 @@ function Chat({ socket }) {
               </div>
             </div>
             <div className="chat-header-toolbar">
-              <PhoneTwoTone className="chat-header-toolbar-icon" />
-              <VideoCameraTwoTone
-                className="chat-header-toolbar-icon"
-                onClick={handleVideoCall}
-              />
+              {chatAcount.is_group ? (
+                <UserAddOutlined
+                  className="chat-header-toolbar-icon"
+                  onClick={() => {
+                    dispatch(showModalAddUserGroup());
+                  }}
+                />
+              ) : (
+                <PhoneTwoTone className="chat-header-toolbar-icon" />
+              )}
+              {chatAcount.is_group ? null : (
+                <VideoCameraTwoTone
+                  className="chat-header-toolbar-icon"
+                  onClick={handleVideoCall}
+                />
+              )}
+
               {rightTab ? (
                 <MenuUnfoldOutlined
                   className="chat-header-toolbar-icon"
@@ -430,23 +482,36 @@ function Chat({ socket }) {
 
               <div className="right-tab-line-divide"></div>
 
-              <List
-                itemLayout="horizontal"
-                dataSource={actionReceiverRightBar}
-                renderItem={(item) => (
-                  <List.Item
-                    className="right-tab-ant-list-item"
-                    style={{
-                      width: "100%",
-                      cursor: "pointer",
-                      justifyContent: "flex-start",
-                    }}
+              {chatAcount.is_group ? (
+                <Collapse defaultActiveKey={["0"]} bordered={false}>
+                  <Panel
+                    showArrow={true}
+                    style={{ backgroundColor: "#FFFFFF" }}
+                    header={<Title level={5}>Thành viên nhóm</Title>}
+                    key="1"
                   >
-                    {item.icon}
-                    <Text style={{}}>{item.title}</Text>
-                  </List.Item>
-                )}
-              />
+                    <Row gutter={[0, 24]}>{renderListUserOfGroup()}</Row>
+                  </Panel>
+                </Collapse>
+              ) : (
+                <List
+                  itemLayout="horizontal"
+                  dataSource={actionReceiverRightBar}
+                  renderItem={(item) => (
+                    <List.Item
+                      className="right-tab-ant-list-item"
+                      style={{
+                        width: "100%",
+                        cursor: "pointer",
+                        justifyContent: "flex-start",
+                      }}
+                    >
+                      {item.icon}
+                      <Text style={{}}>{item.title}</Text>
+                    </List.Item>
+                  )}
+                />
+              )}
 
               <div
                 style={{ marginTop: "0px" }}
@@ -468,7 +533,7 @@ function Chat({ socket }) {
 
               <Collapse
                 style={{ magrinBottom: "5px" }}
-                defaultActiveKey={["1"]}
+                defaultActiveKey={["0"]}
                 bordered={false}
               >
                 <Panel
@@ -487,7 +552,7 @@ function Chat({ socket }) {
 
               <div className="right-tab-line-divide"></div>
 
-              <Collapse defaultActiveKey={["1"]} bordered={false}>
+              <Collapse defaultActiveKey={["0"]} bordered={false}>
                 <Panel
                   showArrow={true}
                   style={{ backgroundColor: "#FFFFFF" }}
@@ -497,6 +562,32 @@ function Chat({ socket }) {
                   <Row gutter={[0, 24]}>
                     <div style={{ textAlign: "center", width: "100%" }}>
                       Chức năng đang hoàn thiện !!
+                    </div>
+                  </Row>
+                </Panel>
+              </Collapse>
+
+              <div className="right-tab-line-divide"></div>
+
+              <Collapse defaultActiveKey={["0"]} bordered={false}>
+                <Panel
+                  showArrow={true}
+                  style={{ backgroundColor: "#FFFFFF" }}
+                  header={<Title level={5}>Tùy Chọn</Title>}
+                  key="1"
+                >
+                  <Row gutter={[0, 24]}>
+                    <div
+                      style={{
+                        margin: "10px",
+                        textAlign: "center",
+                        width: "100%",
+                        border: "0.1px solid red",
+                        color: "red",
+                      }}
+                      onClick={handleOutGroup}
+                    >
+                      Rời nhóm
                     </div>
                   </Row>
                 </Panel>

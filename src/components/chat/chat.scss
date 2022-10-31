@@ -10,7 +10,7 @@
 
     &-info {
       height: 100%;
-      width: 50%;
+      width: 60%;
       display: flex;
       flex-direction: row;
 
@@ -19,7 +19,8 @@
         height: 100%;
 
         img {
-          height: 80%;
+          height: 8vh;
+          width: 8vh;
           margin-top: 5%;
           border-radius: 50%;
         }
@@ -41,7 +42,7 @@
 
     &-toolbar {
       height: 100%;
-      width: 50%;
+      width: 40%;
       display: flex;
       justify-content: flex-end;
       margin: 0 10px;
@@ -195,13 +196,15 @@
 }
 
 .right-tab {
-  overflow-y: hidden;
+  height: 100vh;
+  overflow-y: auto;
+  border-left: 0.1px solid #d2d2d2;
 
   .ant-list-item:hover {
     background-color: var(--light-background-1);
   }
 
-  .ant-collapse-content>.ant-collapse-content-box {
+  .ant-collapse-content > .ant-collapse-content-box {
     padding: 0px;
   }
 
@@ -209,9 +212,6 @@
     padding-right: 16px;
     padding-left: 16px;
   }
-
-  border-left: 0.1px solid #d2d2d2;
-  height: 100%;
 
   &-header {
     width: auto;
@@ -253,7 +253,7 @@
 
   &-line-divide {
     margin-top: 15px;
-    width: '100%';
+    width: "100%";
     height: 7px;
     background-color: var(--light-background-1);
   }

@@ -9,6 +9,7 @@ import modelAcountUserReducer from "../slide/modelAcountSlide";
 import modalUpdateAccountReducer from "../slide/modalUpdateAccountSlide";
 import videoCallReducer from "../slide/videoCallSlide";
 import modalCreateGroupReducer from "../slide/modalCreateGroup";
+import modalAddUserGroupReducer from "../slide/modalAddUserGroup";
 import storage from "redux-persist/lib/storage";
 import { persistReducer } from "redux-persist";
 import thunk from "redux-thunk";
@@ -23,7 +24,7 @@ const rootReducer = combineReducers({
   videoCall: videoCallReducer,
   modalUpdateAccount: modalUpdateAccountReducer,
   modalCreateGroup: modalCreateGroupReducer,
-
+  modalAddUserGroup: modalAddUserGroupReducer,
 });
 
 const persistConfig = {

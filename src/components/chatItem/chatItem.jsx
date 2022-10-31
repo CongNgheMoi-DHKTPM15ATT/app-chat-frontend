@@ -20,31 +20,42 @@ function ChatItem(prop) {
           </Col>
         </Row>
       ) : (
-        <div
-          className={
-            "chat-item chat-item-" +
-            (prop.senderId == prop.userID ? "right" : "left")
-          }
-        >
-          <div span={2} className="chat-item-img">
-            {prop.loadImg ? <img src={prop.avatar} alt="avatar" /> : ""}
-          </div>
+        <>
+          {prop.is_group && prop.loadName ? (
+            <div
+              className={
+                "chatItem-nameSender" +
+                (prop.senderId == prop.userID ? "Right" : "Left")
+              }
+            >
+              {prop.senderName}
+            </div>
+          ) : null}
           <div
-            span={22}
             className={
-              "chat-item-content chat-item-content-" +
-              (prop.senderId == prop.userID ? "right " : "left ")
+              "chat-item chat-item-" +
+              (prop.senderId == prop.userID ? "right" : "left")
             }
-            content_type={prop.content_type}
           >
-            {prop.content_type === "image" ? (
-              <img className="image-content" src={prop.content} alt="image" />
-            ) : (
-              prop.content
-            )}
+            <div className="chat-item-img">
+              {prop.loadImg ? <img src={prop.avatar} alt="avatar" /> : ""}
+            </div>
+            <div
+              className={
+                "chat-item-content chat-item-content-" +
+                (prop.senderId == prop.userID ? "right " : "left ")
+              }
+              content_type={prop.content_type}
+            >
+              {prop.content_type === "image" ? (
+                <img className="image-content" src={prop.content} alt="image" />
+              ) : (
+                prop.content
+              )}
+            </div>
+            <p className="chat-item-time">{time}</p>
           </div>
-          <p className="chat-item-time">{time}</p>
-        </div>
+        </>
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-import { Button } from "antd";
+import { Button, Col, Row } from "antd";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import ConversationAPI from "../../api/conversationAPI";
@@ -176,13 +176,15 @@ function ListFriend({ socket }) {
                 : "người trong danh sách chặn"}
             </p>
           </div>
-          {chooseTab === 0
-            ? renderListFriend()
-            : chooseTab === 1
-            ? renderListAcceptingFriend()
-            : chooseTab === 2
-            ? renderListPendingFriend()
-            : renderListBlock()}
+          <Row gutter={[20, 24]} justify="space-evenly">
+            {chooseTab === 0
+              ? renderListFriend()
+              : chooseTab === 1
+              ? renderListAcceptingFriend()
+              : chooseTab === 2
+              ? renderListPendingFriend()
+              : renderListBlock()}
+          </Row>
         </div>
       </div>
     </div>
@@ -190,123 +192,93 @@ function ListFriend({ socket }) {
 
   function UserCard_Friended(props) {
     return (
-      <div className="user-card">
-        <div className="user-card-img">
-          <img
-            src={require("../../assets/images/add-friend-02.jpg")}
-            alt="avatar"
-          />
-        </div>
-        <div className="user-card-center">
-          <div className="user-card-center-name">
-            <p>{props.user.user_name}</p>
+      <Col>
+        <div className="user-card">
+          <div className="user-card-img">
+            <img src={props.user.avatar} alt="avatar" />
           </div>
-          <div className="user-card-center-name">
-            {/* <p>Nguyễn Thanh Thoảng</p> */}
+          <div className="user-card-center">
+            <div className="user-card-center-name">
+              <p>{props.user.user_name}</p>
+            </div>
+          </div>
+          <div className="user-card-button button-friend">
+            <button
+              onClick={() => handleConfirmRequest(props.user._id)}
+              className="btn-primary"
+            >
+              Hủy trò chuyện
+            </button>
+            <button className="btn-danger">Chặn</button>
           </div>
         </div>
-        <div className="user-card-button button-friend">
-          <Button
-            style={{
-              width: "100%",
-              marginBottom: "1%",
-            }}
-            type="primary"
-            onClick={() => handleConfirmRequest(props.user._id)}
-          >
-            Hủy trò chuyện
-          </Button>
-          <Button
-            style={{
-              width: "100%",
-            }}
-            type="danger"
-          >
-            Chặn
-          </Button>
-        </div>
-      </div>
+      </Col>
     );
   }
 
   function UserCard_Accepting(props) {
     return (
-      <div className="user-card">
-        <div className="user-card-img">
-          <img
-            src={require("../../assets/images/add-friend-02.jpg")}
-            alt="avatar"
-          />
-        </div>
-        <div className="user-card-center">
-          <div className="user-card-center-name">
-            <p>{props.user.user_name}</p>
+      <Col>
+        <div className="user-card">
+          <div className="user-card-img">
+            <img src={props.user.avatar} alt="avatar" />
           </div>
-          <div className="user-card-center-name">
-            {/* <p>Nguyễn Thanh Thoảng</p> */}
+          <div className="user-card-center">
+            <div className="user-card-center-name">
+              <p>{props.user.user_name}</p>
+            </div>
+          </div>
+          <div className="user-card-button button-friend">
+            <button
+              onClick={() => handleConfirmRequest(props.user._id)}
+              className="btn-primary"
+            >
+              Đồng ý
+            </button>
+            <button className="btn-danger">Từ chối</button>
           </div>
         </div>
-
-        <div className="user-card-button">
-          <Button
-            type="primary"
-            onClick={() => handleConfirmRequest(props.user._id)}
-          >
-            Đồng ý
-          </Button>
-          <Button type="danger">Từ Chối</Button>
-        </div>
-      </div>
+      </Col>
     );
   }
 
   function UserCard_Pending(props) {
     return (
-      <div className="user-card">
-        <div className="user-card-img">
-          <img
-            src={require("../../assets/images/add-friend-02.jpg")}
-            alt="avatar"
-          />
-        </div>
-        <div className="user-card-center">
-          <div className="user-card-center-name">
-            <p>{props.user.user_name}</p>
+      <Col>
+        <div className="user-card">
+          <div className="user-card-img">
+            <img src={props.user.avatar} alt="avatar" />
           </div>
-          <div className="user-card-center-name">
-            {/* <p>Nguyễn Thanh Thoảng</p> */}
+          <div className="user-card-center">
+            <div className="user-card-center-name">
+              <p>{props.user.user_name}</p>
+            </div>
+          </div>
+          <div className="user-card-button button-friend">
+            <button className="btn-danger">Thu hồi</button>
           </div>
         </div>
-
-        <div className="user-card-button">
-          <Button type="danger">Thu hồi</Button>
-        </div>
-      </div>
+      </Col>
     );
   }
 
   function UserCard_Block(props) {
     return (
-      <div className="user-card">
-        <div className="user-card-img">
-          <img
-            src={require("../../assets/images/add-friend-02.jpg")}
-            alt="avatar"
-          />
-        </div>
-        <div className="user-card-center">
-          <div className="user-card-center-name">
-            <p>{props.user.user_name}</p>
+      <Col>
+        <div className="user-card">
+          <div className="user-card-img">
+            <img src={props.user.avatar} alt="avatar" />
           </div>
-          <div className="user-card-center-name">
-            {/* <p>Nguyễn Thanh Thoảng</p> */}
+          <div className="user-card-center">
+            <div className="user-card-center-name">
+              <p>{props.user.user_name}</p>
+            </div>
+          </div>
+          <div className="user-card-button button-friend">
+            <button className="btn-primary">Bỏ chặn</button>
           </div>
         </div>
-
-        <div className="user-card-button">
-          <Button type="danger">Bỏ chặn</Button>
-        </div>
-      </div>
+      </Col>
     );
   }
 }
