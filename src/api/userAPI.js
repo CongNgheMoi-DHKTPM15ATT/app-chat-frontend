@@ -37,7 +37,19 @@ const userAPI = {
   updateUser: (params) => {
     const url = "/user/update";
     return axiosClient.post(url, params);
-  }
+  },
+  removeFriend: (params) => {
+    const url = "/user/remove-friend";
+    return axiosClient.post(url, params);
+  },
+  cancelRequest: (params) => {
+    const url = "/user/cancel-request-pending";
+    return axiosClient.post(url, params);
+  },
+  blockFriend: (params) => {
+    const url = "/user/block-friend";
+    return axiosClient.post(url, params);
+  },
 };
 
 export default userAPI;

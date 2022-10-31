@@ -226,15 +226,19 @@ function Chat({ socket }) {
   const renderListMessImage = () => {
     const _listImg = [];
     if (_listMessageImage.length !== 0) {
-      _listMessageImage.map((mess, index) => {
-        _listImg.push(
-          <img
-            className="right-tab-filter-img-video"
-            key={index}
-            src={mess.content}
-            alt="img"
-          />
-        );
+      _listMessageImage.map((mess) => {
+        const list_file = mess.content.split("&%&");
+        list_file.map((url, index) => {
+          if (url)
+            _listImg.push(
+              <img
+                className="right-tab-filter-img-video"
+                key={index}
+                src={url}
+                alt="img"
+              />
+            );
+        });
       });
       return _listImg;
     } else {
@@ -347,32 +351,36 @@ function Chat({ socket }) {
     }
   };
 
-  const handleUpLoadFile = (e) => {
+  const handleUpLoadFile = async (e) => {
     const listFile_size = e.target.files.length;
+    var imgUrl = "";
     for (var i = 0; i < listFile_size; i++) {
       const formData = new FormData();
       formData.append("img", e.target.files[i]);
-      axios
-        .put("https://codejava-app-anime.herokuapp.com/upload", formData, {
+      const response = await axios.put(
+        "https://codejava-app-anime.herokuapp.com/upload",
+        formData,
+        {
           headers: {
             "Content-Type": "multipart/form-data",
           },
           mode: "no-cors",
-        })
-        .then(function (response) {
-          const mess = createMess(
-            response.data.pathVideo,
-            "image",
-            false,
-            _id,
-            chatAcount.user_nick_name,
-            account.avatar
-          );
-          handleSendMessage(mess);
-        })
-        .catch(function () {
-          console.log("FAIL when upload img");
-        });
+        }
+      );
+      console.log(response.data.pathVideo);
+      imgUrl += response.data.pathVideo + "&%&";
+      if (listFile_size - 1 === i) {
+        const mess = createMess(
+          imgUrl,
+          "image",
+          false,
+          _id,
+          chatAcount.user_nick_name,
+          account.avatar
+        );
+        console.log(mess);
+        handleSendMessage(mess);
+      }
     }
   };
 
@@ -525,7 +533,13 @@ function Chat({ socket }) {
                   header={<Title level={5}>Ảnh / Video</Title>}
                   key="1"
                 >
-                  <Row gutter={[0, 24]}>{renderListMessImage()}</Row>
+                  <Row
+                    gutter={[0, 24]}
+                    justify="space-evenly"
+                    style={{ maxHeight: "300px", overflowY: "auto" }}
+                  >
+                    {renderListMessImage()}
+                  </Row>
                 </Panel>
               </Collapse>
 

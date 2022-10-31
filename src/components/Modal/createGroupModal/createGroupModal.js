@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import ConversationAPI from "../../../api/conversationAPI";
 import userAPI from "../../../api/userAPI";
 import { closeModalCreateGroup } from "../../../slide/modalCreateGroup";
-
+import { CloseCircleOutlined } from "@ant-design/icons";
 function ModalCreateGroup({ socket }) {
   const account = useSelector((state) => state.account.account);
   const [list_friend_group, setList_friend_group] = useState([]);
@@ -142,6 +142,17 @@ function ModalCreateGroup({ socket }) {
             {list_friend_group.map((user, index) => (
               <div className="list-add-user" key={index}>
                 {user.name}
+                <div className="list-add-user-remove">
+                  <CloseCircleOutlined
+                    onClick={() => {
+                      list_friend_group.splice(
+                        list_friend_group.indexOf(list_friend_group[index]),
+                        1
+                      );
+                      handleGetListSearch(txt_search);
+                    }}
+                  />
+                </div>
               </div>
             ))}
           </div>
