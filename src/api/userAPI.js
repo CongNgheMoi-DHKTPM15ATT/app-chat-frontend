@@ -34,6 +34,10 @@ const userAPI = {
     const url = "/user/confirm-friend-request";
     return axiosClient.post(url, params);
   },
+  updateUser: (params) => {
+    const url = "/user/update";
+    return axiosClient.post(url, params);
+  }
 };
 
 export default userAPI;
