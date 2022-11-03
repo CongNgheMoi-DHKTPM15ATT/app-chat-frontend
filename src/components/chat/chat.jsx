@@ -39,14 +39,12 @@ import ConversationAPI from "../../api/conversationAPI";
 const { Title, Paragraph, Text } = Typography;
 const { Panel } = Collapse;
 
-const actionReceiverRightBar = [
-  {
-    title: "Nhóm chung",
-    icon: (
-      <FontAwesomeIcon className="right-tab-action-icon" icon={faUserGroup} />
-    ),
-  },
-];
+const actionReceiverRightBar = [{
+  title: "Nhóm chung",
+  icon: (
+    <FontAwesomeIcon className="right-tab-action-icon" icon={faUserGroup} />
+  ),
+}, ];
 
 function Chat({ socket }) {
   const account = useSelector((state) => state.account.account);
@@ -267,6 +265,7 @@ function Chat({ socket }) {
         _ListMess.push(
           <ChatItem
             key={index}
+            messId={mess._id}
             content={mess.content}
             senderId={mess.sender.user_id}
             senderName={mess.sender.nick_name}
@@ -296,6 +295,7 @@ function Chat({ socket }) {
           <ChatItem
             key={index}
             content={mess.content}
+            messId={mess._id}
             senderId={mess.sender.user_id}
             senderName={mess.sender.nick_name}
             loadImg={check}
@@ -359,8 +359,7 @@ function Chat({ socket }) {
       formData.append("img", e.target.files[i]);
       const response = await axios.put(
         "https://codejava-app-anime.herokuapp.com/upload",
-        formData,
-        {
+        formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
