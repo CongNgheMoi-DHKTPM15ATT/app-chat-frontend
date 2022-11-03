@@ -2,35 +2,59 @@ import { Col, Row, Popover, List, Typography } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsis, faArrowRotateLeft, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import messageAPI from "../../api/messageAPI";
+import { updateMessageContent, createMessages } from "../../slide/messageSlide"
 
 
 function ChatItem(prop) {
   const [open, setOpen] = useState(false);
   const { Title, Paragraph, Text } = Typography;
   const [itemOption, setItemOption] = useState(null)
+  const dispatch = useDispatch();
 
-  useEffect(() => {
-    console.log(itemOption)
-    if (itemOption) {
-      if (open) {
-        itemOption.style.opacity = 0.6;
-      } else {
-        itemOption.style.opacity = 0;
-      }
-    }
+  // useEffect(() => {
+  //   console.log(itemOption)
+  //   if (itemOption) {
+  //     if (open) {
+  //       itemOption.style.opacity = 0.6;
+  //     } else {
+  //       itemOption.style.opacity = 0;
+  //     }
+  //   }
 
-  }, [open])
+  // }, [open])
 
   const actionMessages = [{
     title: "Thu hồi tin nhắn",
     icon: (
       <FontAwesomeIcon className="right-tab-action-icon" icon={faArrowRotateLeft} />
     ),
+    event: async () => {
+      const params = {
+        _id: prop.messId,
+      };
+
+      console.log(params)
+
+      try {
+        const response = await messageAPI.recoveryMessagse(params);
+        // const action = updateMessageContent(response.data);
+
+        dispatch(createMessages);
+        console.log("chán đời thật sự");
+      } catch (error) {
+        console.log("Fail when axios API get user by ID: " + error);
+      }
+    }
+
   }, {
     title: "Xóa tin nhắn phía bạn",
     icon: (
       <FontAwesomeIcon className="right-tab-action-icon" icon={faTrash} />
     ),
+    event: () => { console.log("để đó thôi") }
+
   }];
 
   const hide = () => {
@@ -45,35 +69,7 @@ function ChatItem(prop) {
     new Date(prop.createdAt).getHours() +
     ":" +
     new Date(prop.createdAt).getMinutes();
-
-
-  const renderImage = () => {
-    const list_file = prop.content.split("&%&");
-    var list = [];
-    var tmp = list_file.length;
-    var check = (list_file.length - 1) % 2 === 1 ? true : false;
-    list_file.map((url, index) => {
-      if (url) {
-        if (list_file.length === 1 || (tmp === 2 && check))
-          list.push(
-            <Col span={24} style={{ margin: "2px" }}>
-              <img className="image-content" src={url} alt="image" />
-            </Col>
-          );
-        else
-          list.push(
-            <Col span={11} style={{ margin: "2px" }}>
-              <img className="image-content" src={url} alt="image" />
-            </Col>
-          );
-      }
-      tmp -= 1;
-    });
-    return list;
-  };
-
   const openOptional = (e) => {
-    console.log("vào vào")
     setItemOption(e.target.closest('.chat-item').querySelector('.chat-item-option'))
     console.log(itemOption)
 
@@ -86,6 +82,7 @@ function ChatItem(prop) {
         className="listActionOptional"
         renderItem={(item) => (
           <List.Item
+            onClick={item.event}
             className="right-tab-ant-list-item"
             style={{
               width: "100%",
@@ -100,7 +97,6 @@ function ChatItem(prop) {
       />
     )
   }
-
   return (
       <div className="chatItem">
       {prop.content_type === "notification" ? (
@@ -144,17 +140,12 @@ function ChatItem(prop) {
               content_type={prop.content_type}
             >
               {prop.content_type === "image" ? (
-                <Row justify="space-evenly">{renderImage()}</Row>
+                <img className="image-content" src={prop.content} alt="image" />
               ) : (
                 prop.content
               )}
             </div>
-            <p className="chat-item-time">{time}</p>
-            <p className="chat-item-action">...</p>
-          </div>
-
-
-          <div className={"chat-item-option chat-item-option-"+(prop.senderId == prop.userID ? "right " : "left ")}>
+            <div className={"chat-item-option chat-item-option-"+(prop.senderId == prop.userID ? "right " : "left ")}>
             <div className="chat-item-option-element">{time}</div>
             <Popover
               content={renderOptinal}
@@ -171,14 +162,19 @@ function ChatItem(prop) {
           <div className={"chat-item-optional chat-item-optional-"+(prop.senderId == prop.userID ? "right " : "left ")}>
               <div className="chat-item-optional-element">{time}</div>
               <div className="chat-item-optional-element">
-              < FontAwesomeIcon className = "icon-camera" size = "lg" icon = { faEllipsis }/>
-            </div>
+                < FontAwesomeIcon className = "icon-camera" size = "lg" icon = { faEllipsis }/>
+              </div>
           </div>
+          </div>
+
+
+          
 
           
           
           
-        </div>
+        </>
+
   )
 } <
 /div>

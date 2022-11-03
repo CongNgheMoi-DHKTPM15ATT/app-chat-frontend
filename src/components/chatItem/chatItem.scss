@@ -19,12 +19,14 @@
     padding: 0 10px;
     margin-top: 20px;
   }
+
   &-nameSenderRight {
     text-align: right;
     margin-right: 5vh;
     padding: 0 10px;
     display: none;
   }
+
   .chatItem-notification {
     width: 100%;
     margin: 2px;
@@ -105,8 +107,9 @@
     }
 
     &-option {
-      opacity: 0;
+      opacity: 0.6;
       display: flex;
+      cursor: pointer;
 
       &-element {
         margin-left: 3px;
@@ -117,16 +120,13 @@
         border-radius: 20px;
         background-color: #030303ad;
         color: #e4e6eb;
-      }
-
-      &-element-to-optinal {
-        position: relative;
       }
     }
 
     &-optional {
       opacity: 0.6;
       display: none;
+      position: absolute;
 
       &-element {
         margin-left: 3px;
@@ -140,6 +140,7 @@
       }
 
     }
+
     &-action {
       height: 1.6em;
       padding: 0 10px;
@@ -150,16 +151,16 @@
       opacity: 0;
     }
 
-    &-content:hover~.chat-item-option {
+
+    &-content:hover .chat-item-option {
       opacity: 0.6;
     }
 
-    .chat-item-option:hover {
-      cursor: pointer;
+    &-option:hover {
       opacity: 0.6;
     }
 
-    .chat-item-option-right {
+    &-option-right {
       flex-direction: row-reverse;
     }
   }
@@ -167,4 +168,8 @@
   .chat-item-right {
     flex-direction: row-reverse;
   }
+}
+
+.chat-item-content:hover~.chat-item-img {
+  opacity: 0;
 }

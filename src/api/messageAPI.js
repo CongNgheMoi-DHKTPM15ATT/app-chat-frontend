@@ -12,6 +12,10 @@ const messageAPI = {
   getAllMessageByContentType: (params) => {
     const url = "/messages/content-type";
     return axiosClient.post(url, params);
+  },
+  recoveryMessagse: (params) => {
+    const url = "/messages/recover";
+    return axiosClient.post(url, params);
   }
 };
 
