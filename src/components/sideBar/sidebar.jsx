@@ -25,6 +25,7 @@ import { addUser, showModelAddFriend } from "../../slide/modalAddFriendSlide";
 import userAPI from "../../api/userAPI";
 import { showModelAcountUser } from "../../slide/modelAcountSlide";
 import { showModalCreateGroup } from "../../slide/modalCreateGroup";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function SideBar({ socket }) {
   const account = useSelector((state) => state.account.account);
@@ -199,6 +200,7 @@ function SideBar({ socket }) {
     {
       label: <Link to="/home/message">tin nhắn</Link>,
       key: "btn-message",
+      // icon: <FontAwesomeIcon icon={faMessages} />,
       icon: <MessageTwoTone />,
     },
     {
