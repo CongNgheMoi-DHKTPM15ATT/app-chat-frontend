@@ -18,12 +18,14 @@
     padding: 0 10px;
     margin-top: 20px;
   }
+
   &-nameSenderRight {
     text-align: right;
     margin-right: 5vh;
     padding: 0 10px;
     display: none;
   }
+
   .chatItem-notification {
     width: 100%;
     margin: 2px;
@@ -95,8 +97,9 @@
     }
 
     &-option {
-      opacity: 0;
+      opacity: 0.6;
       display: flex;
+      cursor: pointer;
 
       &-element {
         margin-left: 3px;
@@ -119,7 +122,7 @@
       opacity: 0.6 !important;
     }
 
-    .chat-item-option-right {
+    &-option-right {
       flex-direction: row-reverse;
     }
 

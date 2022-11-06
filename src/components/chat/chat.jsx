@@ -358,6 +358,7 @@ function Chat({ socket }) {
             key={index}
             mess_id={mess._id}
             content={mess.content}
+            messId={mess._id}
             senderId={mess.sender.user_id}
             senderName={mess.sender.nick_name}
             loadImg={check}

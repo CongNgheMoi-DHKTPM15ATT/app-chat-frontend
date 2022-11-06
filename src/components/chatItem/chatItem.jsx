@@ -154,6 +154,7 @@ function ChatItem(prop) {
         className="listActionOptional"
         renderItem={(item) => (
           <List.Item
+            onClick={item.event}
             className="right-tab-ant-list-item"
             style={{
               width: "100%",
@@ -212,7 +213,7 @@ function ChatItem(prop) {
               content_type={prop.content_type}
             >
               {prop.content_type === "image" ? (
-                <Row justify="space-evenly">{renderImage()}</Row>
+                <img className="image-content" src={prop.content} alt="image" />
               ) : (
                 prop.content
               )}
