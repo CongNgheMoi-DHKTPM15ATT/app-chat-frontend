@@ -9,10 +9,14 @@ const messageAPI = {
     const url = "/messages/send";
     return axiosClient.post(url, params);
   },
+  recoverMessage: (params) => {
+    const url = "/messages/recover";
+    return axiosClient.post(url, params);
+  },
   getAllMessageByContentType: (params) => {
     const url = "/messages/content-type";
     return axiosClient.post(url, params);
-  }
+  },
 };
 
 export default messageAPI;

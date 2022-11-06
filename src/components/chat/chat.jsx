@@ -72,6 +72,22 @@ function Chat({ socket }) {
   }, [chatAcount]);
 
   useEffect(() => {
+    socket.on("load_message", (data) => {
+      getAllMess(data.conversation);
+    });
+
+    const load_mess = (data) => {
+      console.log(data.conversation + " : " + chatAcount.conversation_id);
+      if (chatAcount.conversation_id === data.conversation)
+        getAllMess(data.conversation);
+    };
+
+    socket.on("load_message_receiver", load_mess);
+
+    return () => socket.off("load_message_receiver", load_mess);
+  }, [chatAcount, socket]);
+
+  useEffect(() => {
     if (pendingMess) {
       if (
         chatAcount.receiver_id === pendingMess.mess.sender.user_id ||
@@ -97,13 +113,14 @@ function Chat({ socket }) {
         false,
         data.senderId,
         data.nick_name,
-        data.avatar
+        data.avatar,
+        data._id
       );
+      console.log(mess);
       if (chatAcount.receiver_id === mess.sender.user_id)
         audio_notification.play();
       setPendingMess({ receiverId: data.receiverId, mess: mess });
     });
-    // return () => socket.off("getMessage", addList);
   }, [socket]);
 
   //---- hàm gửi tin nhắn ----//
@@ -116,7 +133,9 @@ function Chat({ socket }) {
         text: message.content,
       };
       const response = await messageAPI.sendMessage(params);
+      message._id = response.data._id;
       socket.emit("send", {
+        _id: response.data._id,
         senderId: _id,
         receiverId: chatAcount.receiver_id,
         nick_name: chatAcount.user_nick_name,
@@ -141,7 +160,8 @@ function Chat({ socket }) {
         false,
         _id,
         chatAcount.user_nick_name,
-        account.avatar
+        account.avatar,
+        null
       );
       handleSendMessage(mess);
       const response = await ConversationAPI.outMemberGroup(params);
@@ -151,13 +171,22 @@ function Chat({ socket }) {
   };
 
   //---- hàm tạo 1 đối tượng tin nhắn ----//
-  function createMess(content, content_type, deleted, user_id, name, avatar) {
-    const d = new Date();
+  function createMess(
+    content,
+    content_type,
+    deleted,
+    user_id,
+    name,
+    avatar,
+    id
+  ) {
+    const day_now = new Date();
     const mess = {
+      _id: id,
       content: content,
       content_type: content_type,
       deleted: deleted,
-      createdAt: d,
+      createdAt: day_now,
       sender: { avatar: avatar, user_id: user_id, nick_name: name },
     };
     return mess;
@@ -225,17 +254,48 @@ function Chat({ socket }) {
 
   const renderListMessImage = () => {
     const _listImg = [];
+    const y = window.top.outerHeight / 2 + window.top.screenY - 500 / 1.5;
+    const x = window.top.outerWidth / 2 + window.top.screenX - 900 / 2;
     if (_listMessageImage.length !== 0) {
       _listMessageImage.map((mess) => {
         const list_file = mess.content.split("&%&");
         list_file.map((url, index) => {
-          if (url)
+          const type_file = url.split(".");
+          if (
+            type_file[type_file.length - 1] === "mp4" ||
+            type_file[type_file.length - 1] === "mp3" ||
+            type_file[type_file.length - 1] === "avi" ||
+            type_file[type_file.length - 1] === "flv"
+          )
+            _listImg.push(
+              <video
+                className="right-tab-filter-img-video"
+                controls
+                onClick={() =>
+                  window.open(
+                    url,
+                    "",
+                    `width=900,height=500,top=${y},left=${x}`
+                  )
+                }
+              >
+                <source src={url} />
+              </video>
+            );
+          else if (url)
             _listImg.push(
               <img
                 className="right-tab-filter-img-video"
                 key={index}
                 src={url}
                 alt="img"
+                onClick={() =>
+                  window.open(
+                    url,
+                    "",
+                    `width=900,height=500,top=${y},left=${x}`
+                  )
+                }
               />
             );
         });
@@ -260,13 +320,13 @@ function Chat({ socket }) {
     _listMessage.map((mess, index) => {
       const tmp = _listMessage[index + 1];
       if (tmp) {
-        console.log(mess);
         if (tmp.sender.user_id === mess.sender.user_id) checkName = false;
       }
       if (index === 0) {
         _ListMess.push(
           <ChatItem
             key={index}
+            mess_id={mess._id}
             content={mess.content}
             senderId={mess.sender.user_id}
             senderName={mess.sender.nick_name}
@@ -277,6 +337,7 @@ function Chat({ socket }) {
             avatar={mess.sender.avatar}
             content_type={mess.content_type}
             is_group={chatAcount.is_group}
+            socket={socket}
           />
         );
         loadImg = mess.sender.user_id;
@@ -295,6 +356,7 @@ function Chat({ socket }) {
         _ListMess.push(
           <ChatItem
             key={index}
+            mess_id={mess._id}
             content={mess.content}
             senderId={mess.sender.user_id}
             senderName={mess.sender.nick_name}
@@ -305,6 +367,7 @@ function Chat({ socket }) {
             content_type={mess.content_type}
             avatar={mess.sender.avatar}
             is_group={chatAcount.is_group}
+            socket={socket}
           />
         );
       }
@@ -345,7 +408,8 @@ function Chat({ socket }) {
         false,
         _id,
         chatAcount.user_nick_name,
-        account.avatar
+        account.avatar,
+        null
       );
       handleSendMessage(mess);
     }
@@ -376,7 +440,8 @@ function Chat({ socket }) {
           false,
           _id,
           chatAcount.user_nick_name,
-          account.avatar
+          account.avatar,
+          null
         );
         console.log(mess);
         handleSendMessage(mess);

@@ -4,12 +4,11 @@
   }
 
   .ant-list-item:hover {
-    background-color: var(--light-background-1)
+    background-color: var(--light-background-1);
   }
 }
 
 .chatItem {
-
   width: 100%;
 
   // background-color: antiquewhite;
@@ -50,7 +49,6 @@
   }
 
   .chat-item {
-
     width: 100%;
     margin: 2px;
     // background-color: aqua;
@@ -72,15 +70,12 @@
     }
 
     &-content {
-      position: relative;
       cursor: pointer;
       max-width: 65%;
-      // background-color: rgb(36, 146, 146);
       border-radius: 20px;
       font-size: 1em;
       padding: 0 10px;
       margin-left: 5px;
-      margin-right: 5px;
       word-wrap: break-word;
       text-align: left;
       line-height: 2.5;
@@ -89,17 +84,12 @@
 
       .image-content {
         width: 100%;
-        height: 96%;
-        margin: 2% 0;
+        border-radius: 10px;
       }
     }
 
-    &-content[content_type="image"] {
-      max-width: 35%;
-      // max-height: 450px;
-    }
-
     &-content-right {
+      margin-right: 5px;
       background-color: $color-primary;
       box-shadow: -5px 5px 5px grey;
     }
@@ -118,53 +108,49 @@
         background-color: #030303ad;
         color: #e4e6eb;
       }
-
-      &-element-to-optinal {
-        position: relative;
-      }
     }
 
-    &-optional {
-      opacity: 0.6;
-      display: none;
-
-      &-element {
-        margin-left: 3px;
-        align-self: flex-end;
-        display: inline-block;
-        height: 1.6em;
-        padding: 0 10px;
-        border-radius: 20px;
-        background-color: #030303ad;
-        color: #e4e6eb;
-      }
-
-    }
-    &-action {
-      height: 1.6em;
-      padding: 0 10px;
-      font-size: 1em;
-      border-radius: 20px;
-      background-color: #030303ad;
-      color: #e4e6eb;
-      opacity: 0;
-    }
-
-    &-content:hover~.chat-item-option {
+    &-content:hover ~ .chat-item-option {
       opacity: 0.6;
     }
 
-    .chat-item-option:hover {
+    &-option:hover {
       cursor: pointer;
-      opacity: 0.6;
+      opacity: 0.6 !important;
     }
 
     .chat-item-option-right {
       flex-direction: row-reverse;
+    }
+
+    &-content[content_type="image"] {
+      max-width: 35%;
+      background-color: #eeeeee;
+      box-shadow: none;
+    }
+
+    &-content[content_type="recover"] {
+      background-color: initial;
+      box-shadow: none;
+      border: 1px solid gray;
     }
   }
 
   .chat-item-right {
     flex-direction: row-reverse;
   }
+}
+
+.popover-action {
+  padding: 5px;
+  border-radius: 5px;
+  &-item {
+    margin-bottom: 0.2em;
+    text-align: left;
+    font-weight: 600;
+  }
+}
+
+.popover-action:hover {
+  background-color: rgb(227, 227, 227);
 }
