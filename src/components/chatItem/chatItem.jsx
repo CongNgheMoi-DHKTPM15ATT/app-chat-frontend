@@ -212,11 +212,7 @@ function ChatItem(prop) {
               }
               content_type={prop.content_type}
             >
-              {prop.content_type === "image" ? (
-                <img className="image-content" src={prop.content} alt="image" />
-              ) : (
-                prop.content
-              )}
+              {prop.content_type === "image" ? renderImage() : prop.content}
             </div>
 
             <div

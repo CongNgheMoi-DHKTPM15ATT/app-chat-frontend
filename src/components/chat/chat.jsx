@@ -51,6 +51,8 @@ const actionReceiverRightBar = [
 function Chat({ socket }) {
   const account = useSelector((state) => state.account.account);
   const chatAcount = useSelector((state) => state.chat.account);
+  const [_infoConversation, _setInfoConversation] = useState();
+  const [_adminGroup, _setAdminGroup] = useState();
   const { _id } = account;
   const [value, setValue] = useState("");
   const [rightTab, setRightTab] = useState(false);
@@ -64,7 +66,23 @@ function Chat({ socket }) {
   const audio_notification = new Audio(audios[1].src);
 
   //---- hàm lấy toàn bộ tin nhắn khi có sự thay dổi người nhận tin nhắn ----//
+
   useEffect(() => {
+    console.log(_infoConversation);
+    if (_infoConversation)
+      if (_infoConversation.is_group) {
+        _setAdminGroup(
+          _infoConversation.members[
+            _infoConversation.members.findIndex(
+              (mem) => mem.user_id === _infoConversation.admin
+            )
+          ]
+        );
+      }
+  }, [_infoConversation]);
+
+  useEffect(() => {
+    handleGetInfoConver();
     getAllMess(chatAcount.conversation_id);
     if (rightTab) {
       getAllMessByContentType(chatAcount.conversation_id, "image");
@@ -122,6 +140,18 @@ function Chat({ socket }) {
       setPendingMess({ receiverId: data.receiverId, mess: mess });
     });
   }, [socket]);
+
+  const handleGetInfoConver = async () => {
+    try {
+      const params = {
+        _id: chatAcount.conversation_id,
+      };
+      const response = await ConversationAPI.getInfoConversationById(params);
+      _setInfoConversation(response);
+    } catch (error) {
+      console.log("Fail when call API get info of conversation " + error);
+    }
+  };
 
   //---- hàm gửi tin nhắn ----//
   const handleSendMessage = async (message) => {
@@ -240,15 +270,44 @@ function Chat({ socket }) {
 
   const renderListUserOfGroup = () => {
     const _listUser = [];
-    if (chatAcount.member)
-      chatAcount.member.map((user) => {
-        _listUser.push(
-          <div style={{ width: "100%", textAlign: "left", marginLeft: "10px" }}>
-            {user.nick_name}
-          </div>
-        );
+    // conversations.findIndex((conver) => conver._id === chooseConver)
+    _listUser.push(
+      <div style={{ width: "100%", textAlign: "left", marginLeft: "10px" }}>
+        <b>Có {_infoConversation.members.length} thành viên</b>
+      </div>
+    );
+    _listUser.push(
+      <div style={{ width: "100%", textAlign: "left", marginLeft: "10px" }}>
+        <b>Quản trị viên</b>
+      </div>
+    );
+    _listUser.push(
+      <div style={{ width: "100%", textAlign: "left", marginLeft: "10px" }}>
+        {_adminGroup.nick_name}{" "}
+        {_adminGroup.user_id === account._id && " (bạn)"}
+      </div>
+    );
+    _listUser.push(
+      <div style={{ width: "100%", textAlign: "left", marginLeft: "10px" }}>
+        <b>Thành viên</b>
+      </div>
+    );
+    if (_infoConversation.members)
+      _infoConversation.members.map((user) => {
+        if (user.user_id !== _adminGroup.user_id)
+          _listUser.push(
+            <div
+              style={{ width: "100%", textAlign: "left", marginLeft: "10px" }}
+            >
+              {user.nick_name} {user.user_id === account._id && " (bạn)"}
+            </div>
+          );
       });
-
+    _listUser.push(
+      <div style={{ width: "100%", textAlign: "left", marginLeft: "10px" }}>
+        <b></b>
+      </div>
+    );
     return _listUser;
   };
 

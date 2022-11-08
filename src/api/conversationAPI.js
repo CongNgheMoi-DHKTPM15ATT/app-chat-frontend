@@ -5,6 +5,10 @@ const ConversationAPI = {
     const url = "/conversation";
     return axiosClient.post(url, params);
   },
+  getInfoConversationById: (params) => {
+    const url = "/conversation/id";
+    return axiosClient.post(url, params);
+  },
   createConversation: (params) => {
     const url = "/conversation/create";
     return axiosClient.post(url, params);
