@@ -25,11 +25,15 @@ function ModalCreateGroup({ socket }) {
     dispatch(closeModalCreateGroup());
   };
   const createGroup = async () => {
-    var tmp = [account._id];
+    var tmp = [];
     list_friend_group.map((user) => {
       tmp.push(user.id);
     });
-    const params = { group_name: txt_name_group, user_id: tmp };
+    const params = {
+      group_name: txt_name_group,
+      user_id: tmp,
+      admin_id: account._id,
+    };
     console.log(params);
 
     try {
