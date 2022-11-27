@@ -20,7 +20,7 @@ import { createConversations } from "../../slide/conversationSlide";
 import { useDispatch } from "react-redux";
 import { setChatAccount } from "../../slide/chatSlide";
 import { showModalLogout } from "../../slide/modalSlide";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { addUser, showModelAddFriend } from "../../slide/modalAddFriendSlide";
 import userAPI from "../../api/userAPI";
 import { showModelAcountUser } from "../../slide/modelAcountSlide";
@@ -40,6 +40,7 @@ function SideBar({ socket }) {
   const [search, setSearch] = useState(true);
   const [txt_search, setTxt_Search] = useState("");
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const href_now = window.location.pathname.split("/")[2];
 
   useEffect(() => {
@@ -58,6 +59,10 @@ function SideBar({ socket }) {
   useEffect(() => {
     setChooseConver(chatAcount.conversation_id);
   }, [chatAcount]);
+
+  useEffect(() => {
+    handleGetListSearch(txt_search);
+  }, [txt_search]);
 
   useEffect(() => {
     if (list_friend.length > 0) setSearch(false);
@@ -92,6 +97,16 @@ function SideBar({ socket }) {
     socket.on("getMessage", changeConver);
     socket.on("load-conver", changeConver);
     return () => socket.off("getMessage", changeConver);
+  }, [socket]);
+
+  useEffect(() => {
+    const changeListSearch = () => {
+      // console.log(txt_search);
+      // handleGetListSearch(txt_search);
+      setTxt_Search(txt_search);
+    };
+    socket.on("load_list_search", changeListSearch);
+    return () => socket.off("load_list_search", changeListSearch);
   }, [socket]);
 
   const handleGetConversations = async (id) => {
@@ -297,6 +312,7 @@ function SideBar({ socket }) {
       <div
         id={props.id}
         onClick={() => {
+          navigate("/home/message");
           setChooseUser(props.id);
           if (props.user.conversation !== null) {
             const action = setChatAccount({
@@ -380,7 +396,6 @@ function SideBar({ socket }) {
                 className="txt-search"
                 onChange={(e) => {
                   setTxt_Search(e.target.value);
-                  handleGetListSearch(e.target.value);
                 }}
               />
               <CloseCircleOutlined

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ConversationAPI from "../../../api/conversationAPI";
 import userAPI from "../../../api/userAPI";
+import { CloseCircleOutlined } from "@ant-design/icons";
 import { closeModalAddUserGroup } from "../../../slide/modalAddUserGroup";
 
 function ModalAddUserGroup({ socket }) {
@@ -59,11 +60,12 @@ function ModalAddUserGroup({ socket }) {
 
   const handleAddMember = async () => {
     try {
-      var tmp = [account._id];
+      var tmp = [];
       list_friend_group.map((user) => {
         tmp.push(user.id);
       });
       const params = {
+        user_control_id: account._id,
         conversation_id: chatAccount.conversation_id,
         user_id: tmp,
       };
@@ -147,6 +149,17 @@ function ModalAddUserGroup({ socket }) {
             {list_friend_group.map((user, index) => (
               <div className="list-add-user" key={index}>
                 {user.name}
+                <div className="list-add-user-remove">
+                  <CloseCircleOutlined
+                    onClick={() => {
+                      list_friend_group.splice(
+                        list_friend_group.indexOf(list_friend_group[index]),
+                        1
+                      );
+                      handleGetListSearch(txt_search);
+                    }}
+                  />
+                </div>
               </div>
             ))}
           </div>
