@@ -31,7 +31,12 @@ import S3API from "../../api/s3API";
 import { showModelAcountUser } from "../../slide/modelAcountSlide";
 import { customDate } from "../../utils/customDate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUserGroup } from "@fortawesome/free-solid-svg-icons";
+import {
+  faUserGroup,
+  faPenToSquare,
+  faImage,
+  faGears,
+} from "@fortawesome/free-solid-svg-icons";
 import audios from "../../assets/audio/audios";
 import axios from "axios";
 import { showModalAddUserGroup } from "../../slide/modalAddUserGroup";
@@ -616,16 +621,58 @@ function Chat({ socket }) {
               <div className="right-tab-line-divide"></div>
 
               {chatAcount.is_group ? (
-                <Collapse defaultActiveKey={["0"]} bordered={false}>
-                  <Panel
-                    showArrow={true}
-                    style={{ backgroundColor: "#FFFFFF" }}
-                    header={<Title level={5}>Thành viên nhóm</Title>}
-                    key="1"
-                  >
-                    <Row gutter={[0, 24]}>{renderListUserOfGroup()}</Row>
-                  </Panel>
-                </Collapse>
+                <>
+                  <Collapse defaultActiveKey={["0"]} bordered={false}>
+                    <Panel
+                      showArrow={true}
+                      style={{ backgroundColor: "#FFFFFF" }}
+                      header={<Title level={5}>Tùy chỉnh nhóm</Title>}
+                      key="1"
+                    >
+                      <Row gutter={[0, 12]} justify="space-around">
+                        <Col span={22} className="setting-action">
+                          <FontAwesomeIcon
+                            className="setting-action-icon"
+                            size="lg"
+                            icon={faPenToSquare}
+                          />
+                          <p className="setting-action-name">Đổi tên nhóm</p>
+                        </Col>
+                        <Col span={22} className="setting-action">
+                          <FontAwesomeIcon
+                            className="setting-action-icon"
+                            size="lg"
+                            icon={faImage}
+                          />
+                          <p className="setting-action-name">Đổi ảnh</p>
+                        </Col>
+                        <Col span={22} className="setting-action">
+                          <FontAwesomeIcon
+                            className="setting-action-icon"
+                            size="lg"
+                            icon={faGears}
+                          />
+                          <p className="setting-action-name">Tùy chỉnh quyền</p>
+                        </Col>
+                        <Col span={22}></Col>
+                      </Row>
+                    </Panel>
+                  </Collapse>
+                  <div
+                    style={{ marginTop: "0px" }}
+                    className="right-tab-line-divide"
+                  ></div>
+                  <Collapse defaultActiveKey={["0"]} bordered={false}>
+                    <Panel
+                      showArrow={true}
+                      style={{ backgroundColor: "#FFFFFF" }}
+                      header={<Title level={5}>Thành viên nhóm</Title>}
+                      key="1"
+                    >
+                      <Row gutter={[0, 24]}>{renderListUserOfGroup()}</Row>
+                    </Panel>
+                  </Collapse>
+                </>
               ) : (
                 <List
                   itemLayout="horizontal"
@@ -707,35 +754,9 @@ function Chat({ socket }) {
               </Collapse>
 
               <div className="right-tab-line-divide"></div>
-
-              <Collapse defaultActiveKey={["0"]} bordered={false}>
-                <Panel
-                  showArrow={true}
-                  style={{ backgroundColor: "#FFFFFF" }}
-                  header={<Title level={5}>Tùy Chọn</Title>}
-                  key="1"
-                >
-                  <Row gutter={[0, 24]}>
-                    <div
-                      style={{
-                        margin: "10px",
-                        textAlign: "center",
-                        width: "100%",
-                        border: "0.1px solid red",
-                        color: "red",
-                      }}
-                      onClick={handleOutGroup}
-                    >
-                      Rời nhóm
-                    </div>
-                  </Row>
-                </Panel>
-              </Collapse>
             </div>
           </Col>
-        ) : (
-          ""
-        )}
+        ) : null}
       </Row>
     </div>
   );

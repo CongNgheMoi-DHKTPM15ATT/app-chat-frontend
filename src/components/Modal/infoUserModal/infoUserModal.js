@@ -7,7 +7,7 @@ import {
   closeModelAddFriend,
 } from "../../../slide/modalAddFriendSlide";
 
-function ModalInfoUser() {
+function ModalInfoUser({ socket }) {
   const account = useSelector((state) => state.account.account);
   const modelAddFriend = useSelector((state) => state.modelAddFriend.openModal);
   const modelAddFriend_user = useSelector(
@@ -46,9 +46,11 @@ function ModalInfoUser() {
 
   const handleOk_modelAddFriend = () => {
     sendRequestAddFriend(account._id, modelAddFriend_user);
+    socket.emit("load_list_search", { sender_id: account._id });
     dispatch(closeModelAddFriend());
     dispatch(addUser({ receiver_id: "" }));
   };
+
   const handleCancel_modelAddFriend = () => {
     dispatch(closeModelAddFriend());
     dispatch(addUser({ receiver_id: "" }));
@@ -68,9 +70,9 @@ function ModalInfoUser() {
         </div>
         <div className="info-user-name">{userGetById.user_name}</div>
 
-        <Card title="Card title">
+        {/* <Card title="Card title">
           <div className="info-user-date">{userGetById.birth_day}</div>
-        </Card>
+        </Card> */}
       </div>
 
       <div className="modal-addfriend-footer">

@@ -1,4 +1,5 @@
-.popup-optional {}
+.popup-optional {
+}
 
 .chat {
   width: 100%;
@@ -274,5 +275,25 @@
       margin-left: 6px;
       cursor: pointer;
     }
+  }
+  .setting-action {
+    padding: 0 5px;
+    text-align: left;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: row;
+    &-icon {
+      font-weight: 500;
+      color: #828282;
+    }
+    &-name {
+      margin-left: 10px;
+      margin-bottom: 0;
+      font-weight: 500;
+      color: #828282;
+    }
+  }
+  .setting-action:hover {
+    background-color: rgb(238, 238, 238);
   }
 }

@@ -87,7 +87,7 @@ function HomePage() {
 
       <ModalLogOut />
       <ModalInfoAccount />
-      <ModalInfoUser />
+      <ModalInfoUser socket={socket} />
       <ModalVideoCall socket={socket} />
       <ModalUpdateInfoAccount />
       <ModalCreateGroup socket={socket} />

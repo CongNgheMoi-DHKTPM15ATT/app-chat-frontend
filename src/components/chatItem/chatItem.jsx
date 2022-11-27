@@ -24,7 +24,6 @@ function ChatItem(prop) {
       };
       const response = await messageAPI.recoverMessage(params);
       if (response.success) {
-        console.log(chatAcount.conversation_id);
         prop.socket.emit("load_message", {
           sender_id: account._id,
           receiverId: chatAcount.receiver_id,
@@ -212,7 +211,11 @@ function ChatItem(prop) {
               }
               content_type={prop.content_type}
             >
-              {prop.content_type === "image" ? renderImage() : prop.content}
+              {prop.content_type === "image" ? (
+                <Row justify="space-evenly">{renderImage()}</Row>
+              ) : (
+                prop.content
+              )}
             </div>
 
             <div
@@ -236,7 +239,6 @@ function ChatItem(prop) {
                           </p>
                         </div>
                         <div
-                          onClick={handelDeleteMess}
                           style={{ cursor: "pointer" }}
                           className="popover-action"
                         >

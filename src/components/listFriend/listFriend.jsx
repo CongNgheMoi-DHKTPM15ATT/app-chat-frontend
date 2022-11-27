@@ -1,14 +1,18 @@
-import { Button, Col, Row } from "antd";
+import { Col, Row } from "antd";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import ConversationAPI from "../../api/conversationAPI";
 import messageAPI from "../../api/messageAPI";
 import userAPI from "../../api/userAPI";
+import { setChatAccount } from "../../slide/chatSlide";
 
 function ListFriend({ socket }) {
   const [chooseTab, setChooseTab] = useState(0);
   const account = useSelector((state) => state.account.account);
   const [listRender, setListRender] = useState([]);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (chooseTab === 2) handleGetListPending("pending");
@@ -40,7 +44,7 @@ function ListFriend({ socket }) {
       const response = await userAPI.removeFriend(params);
       if (response.success) {
         socket.emit("loadConver", { sender_id: account._id });
-        socket.emit("requestLoadConver", { user: [receiver_id] });
+        socket.emit("requestLoadConver", { user: receiver_id });
         handleGetListPending("friended");
       }
     } catch (error) {
@@ -236,8 +240,31 @@ function ListFriend({ socket }) {
   );
 
   function UserCard_Friended(props) {
+    const handleGetListSearch = async (text) => {
+      try {
+        const params = {
+          user_id: account._id,
+          filter: text,
+        };
+        const response = await userAPI.searchUser(params);
+        navigate("/home/message");
+        const action = setChatAccount({
+          receiver_id: response[0]._id,
+          conversation_id: response[0].conversation,
+          user_nick_name: account.user_name,
+          receiver_nick_name: response[0].nick_name,
+          avatar: response[0].avatar,
+        });
+        dispatch(action);
+      } catch (error) {
+        console.log("Failed to call API get list search" + error);
+      }
+    };
+    const handleChangetoMess = (data) => {
+      handleGetListSearch(data.user.phone);
+    };
     return (
-      <Col>
+      <Col onClick={() => handleChangetoMess(props)}>
         <div className="user-card">
           <div className="user-card-img">
             <img src={props.user.avatar} alt="avatar" />
